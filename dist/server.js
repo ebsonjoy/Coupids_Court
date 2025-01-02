@@ -21,17 +21,34 @@ const port = process.env.PORT || 4000;
 const server = http_1.default.createServer(app);
 (0, socket_1.initializeSocket)(server);
 (0, db_1.default)();
-const corsOptions = {
-    origin: ["http://localhost:3001", "https://coupidscourt.site/", "https://www.coupidscourt.site/"],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow necessary methods
-    allowedHeaders: ['Content-Type', 'Authorization'], // Allow necessary headers
-    credentials: true // If you're using cookies or authentication
-};
-app.use((0, cors_1.default)(corsOptions));
+// const corsOptions = {
+//   origin: ["http://localhost:3001", "https://coupidscourt.site/", "https://www.coupidscourt.site/"],
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow necessary methods
+//   allowedHeaders: ['Content-Type', 'Authorization'], // Allow necessary headers
+//   credentials: true // If you're using cookies or authentication
+// };
+// app.use(cors(corsOptions));
+const allowedOrigins = ["http://localhost:3001", "https://coupidscourt.site/", "https://www.coupidscourt.site/"];
+app.use((0, cors_1.default)({
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        }
+        else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+}));
 app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.static("backend/public"));
 app.use(express_1.default.urlencoded({ extended: true }));
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Credentials', 'true');
+    next();
+});
 app.get("/", (req, res) => {
     res.send("Server is ready");
 });
