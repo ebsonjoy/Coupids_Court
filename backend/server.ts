@@ -29,8 +29,9 @@ connectDB();
 
 const corsOptions = {
   origin: ["http://localhost:3001", "https://coupidscourt.site/", "https://www.coupidscourt.site/"],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow necessary methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // Allow necessary headers
+  credentials: true // If you're using cookies or authentication
 };
 app.use(cors(corsOptions));
 app.use(cookieParser());

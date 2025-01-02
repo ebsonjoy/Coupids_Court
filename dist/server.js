@@ -22,9 +22,10 @@ const server = http_1.default.createServer(app);
 (0, socket_1.initializeSocket)(server);
 (0, db_1.default)();
 const corsOptions = {
-    origin: ["http://localhost:3001"],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
+    origin: ["http://localhost:3001", "https://coupidscourt.site/", "https://www.coupidscourt.site/"],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow necessary methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Allow necessary headers
+    credentials: true // If you're using cookies or authentication
 };
 app.use((0, cors_1.default)(corsOptions));
 app.use((0, cookie_parser_1.default)());
