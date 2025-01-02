@@ -9,7 +9,7 @@ export default defineConfig({
     port: 3001,
     proxy:{
       '/api':{
-        target:'https://apis.coupidscourt.site',
+        target:'https://api.coupidscourt.site',
         changeOrigin:true
       }
     }
