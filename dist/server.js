@@ -28,18 +28,11 @@ const server = http_1.default.createServer(app);
 //   credentials: true // If you're using cookies or authentication
 // };
 // app.use(cors(corsOptions));
-const allowedOrigins = ["http://localhost:3001", "https://coupidscourt.site/", "https://www.coupidscourt.site/"];
 app.use((0, cors_1.default)({
-    origin: function (origin, callback) {
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        }
-        else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
+    origin: 'https://www.coupidscourt.site', // Explicitly allow your frontend domain
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
 }));
 app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json());
