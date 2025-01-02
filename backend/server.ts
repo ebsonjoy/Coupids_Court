@@ -28,7 +28,7 @@ connectDB();
 
 
 const corsOptions = {
-  origin: ["http://localhost:3001"],
+  origin: ["http://localhost:3001", "https://coupidscourt.site/", "https://www.coupidscourt.site/"],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
 };
