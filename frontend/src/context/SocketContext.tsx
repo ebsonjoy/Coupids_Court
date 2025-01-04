@@ -55,7 +55,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (userId) {
-      const newSocket = io('https://apis.coupidscourt.site', {
+      const newSocket = io('https://api.coupidscourt.site', {
         query: { userId },
       });
 
