@@ -26,17 +26,8 @@ initializeSocket(server);
 
 connectDB();
 
-
-// const corsOptions = {
-//   origin: ["http://localhost:3001", "https://coupidscourt.site/", "https://www.coupidscourt.site/"],
-//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow necessary methods
-//   allowedHeaders: ['Content-Type', 'Authorization'], // Allow necessary headers
-//   credentials: true // If you're using cookies or authentication
-// };
-// app.use(cors(corsOptions));
-
 app.use(cors({
-  origin: 'https://www.coupidscourt.site', // Explicitly allow your frontend domain
+  origin: 'https://www.coupidscourt.site', 
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,

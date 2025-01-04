@@ -57,6 +57,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     if (userId) {
       const newSocket = io('https://api.coupidscourt.site', {
         query: { userId },
+        transports: ['websocket']
       });
 
       setSocket(newSocket);
