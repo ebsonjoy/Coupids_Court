@@ -30,10 +30,11 @@ const MatchModel_1 = __importDefault(require("../../models/MatchModel"));
 const PlanModel_1 = __importDefault(require("../../models/PlanModel"));
 const PaymentModel_1 = __importDefault(require("../../models/PaymentModel"));
 const Notifications_1 = __importDefault(require("../../models/Notifications"));
+const reportModel_1 = __importDefault(require("../../models/reportModel"));
 const Article_1 = __importDefault(require("../../models/Article"));
 const AdviceCategory_1 = __importDefault(require("../../models/AdviceCategory"));
 let UserRepository = class UserRepository {
-    constructor(UserModel = User_1.default, UserInfoModel = UserInfo_1.default, LikesModel = LikesModel_1.default, MatchModel = MatchModel_1.default, PlanModel = PlanModel_1.default, PaymentModel = PaymentModel_1.default, AdviceCategoryModel = AdviceCategory_1.default, ArticleModel = Article_1.default, NotificationModel = Notifications_1.default) {
+    constructor(UserModel = User_1.default, UserInfoModel = UserInfo_1.default, LikesModel = LikesModel_1.default, MatchModel = MatchModel_1.default, PlanModel = PlanModel_1.default, PaymentModel = PaymentModel_1.default, AdviceCategoryModel = AdviceCategory_1.default, ArticleModel = Article_1.default, NotificationModel = Notifications_1.default, reportModel = reportModel_1.default) {
         this.UserModel = UserModel;
         this.UserInfoModel = UserInfoModel;
         this.LikesModel = LikesModel;
@@ -43,6 +44,7 @@ let UserRepository = class UserRepository {
         this.AdviceCategoryModel = AdviceCategoryModel;
         this.ArticleModel = ArticleModel;
         this.NotificationModel = NotificationModel;
+        this.reportModel = reportModel;
     }
     findByEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -319,9 +321,51 @@ let UserRepository = class UserRepository {
                 : "No notifications found to delete.";
         });
     }
+    userBlocked(userId, blockedUserId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield this.UserModel.findByIdAndUpdate(userId, { $addToSet: { blockedUsers: blockedUserId } }, { new: true }).select('userId blockedUsers');
+                if (!user) {
+                    return null;
+                }
+                return {
+                    _id: user._id.toString(),
+                    blockedUsers: user.blockedUsers,
+                };
+            }
+            catch (error) {
+                console.error('Error blocking user:', error);
+                throw new Error('Failed to block user');
+            }
+        });
+    }
+    userUnblocked(userId, blockedUserId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield this.UserModel.findByIdAndUpdate(userId, { $pull: { blockedUsers: blockedUserId } }, { new: true });
+                if (!user) {
+                    return null;
+                }
+                return {
+                    _id: user._id.toString(),
+                    blockedUsers: user.blockedUsers,
+                };
+            }
+            catch (error) {
+                console.error('Error blocking user:', error);
+                throw new Error('Failed to block user');
+            }
+        });
+    }
+    createReport(reportData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const report = new this.reportModel(reportData);
+            return yield report.save();
+        });
+    }
 };
 exports.UserRepository = UserRepository;
 exports.UserRepository = UserRepository = __decorate([
     (0, inversify_1.injectable)(),
-    __metadata("design:paramtypes", [Object, Object, Object, Object, Object, Object, Object, Object, Object])
+    __metadata("design:paramtypes", [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object])
 ], UserRepository);

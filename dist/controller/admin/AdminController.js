@@ -30,6 +30,7 @@ const express_async_handler_1 = __importDefault(require("express-async-handler")
 const HttpStatusCode_1 = require("../../enums/HttpStatusCode");
 const generateAdminToken_1 = __importDefault(require("../../utils/generateAdminToken"));
 const StatusMessage_1 = require("../../enums/StatusMessage");
+const socket_1 = require("../../socket/socket");
 let AdminController = class AdminController {
     constructor(adminService) {
         this.adminService = adminService;
@@ -91,6 +92,12 @@ let AdminController = class AdminController {
             const { newStatus } = req.body;
             try {
                 const updatedUser = yield this.adminService.toggleUserStatus(userId, newStatus);
+                if ((updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser.status) == false) {
+                    const socketId = (0, socket_1.getReceiverSocketId)(userId);
+                    if (socketId) {
+                        socket_1.io.to(socketId).emit('forceLogout');
+                    }
+                }
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: 'User status updated', user: updatedUser });
             }
             catch (error) {
@@ -146,6 +153,46 @@ let AdminController = class AdminController {
             }
             catch (error) {
                 res.status(500).json({ message: 'Error fetching payment chart data', error });
+            }
+        }));
+        this.getUserReports = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const reports = yield this.adminService.getReportsWithMessages();
+                res.status(200).json({
+                    success: true,
+                    data: reports,
+                });
+            }
+            catch (err) {
+                const error = err;
+                res.status(500).json({
+                    success: false,
+                    message: "Failed to fetch reports.",
+                    error: error.message,
+                });
+            }
+        }));
+        this.updateReportStatus = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+            const { reportId } = req.params;
+            const { status } = req.body;
+            console.log('reportId', reportId, 'status', status);
+            if (!['Pending', 'Reviewed', 'Resolved'].includes(status)) {
+                res.status(400).json({ message: 'Invalid status value' });
+                return;
+            }
+            try {
+                const updatedReport = yield this.adminService.updateReportStatus(reportId, status);
+                if (!updatedReport) {
+                    res.status(404).json({ message: 'Report not found' });
+                    return;
+                }
+                res.status(200).json({ message: 'Report status updated successfully', data: updatedReport });
+                return;
+            }
+            catch (error) {
+                console.error(error);
+                res.status(500).json({ message: 'Internal server error' });
+                return;
             }
         }));
     }

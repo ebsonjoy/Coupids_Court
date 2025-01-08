@@ -52,7 +52,7 @@ class GoogleAuthService {
                         status: true,
                         isGoogleLogin: true,
                         googleId: payload.sub,
-                        dateOfBirth: 'NA',
+                        dateOfBirth: null,
                         mobileNumber: 'NA'
                     });
                     return user;

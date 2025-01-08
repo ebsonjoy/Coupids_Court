@@ -43,4 +43,6 @@ router.get('/getSingleArticle/:articleId', adviceController.getSingleArticle);
 router.put('/updateArticle/:articleId', multer_1.multerUploadUserImg.single("image"), adviceController.updateArticle);
 router.delete('/deleteArtilce/:articleId', adviceController.deleteArticle);
 router.get('/fetchArtilceByCategory/:categoryId', adviceController.getArticlesByCategory);
+router.get('/userReportWithMessages', adminControllerr.getUserReports);
+router.put('/updateReportStatus/:reportId', adminControllerr.updateReportStatus);
 exports.default = router;

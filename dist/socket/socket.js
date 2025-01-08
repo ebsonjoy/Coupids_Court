@@ -21,7 +21,7 @@ let playingArray = [];
 const initializeSocket = (server) => {
     exports.io = new socket_io_1.Server(server, {
         cors: {
-            origin: ["http://localhost:3001", "https://coupidscourt.site/", "https://www.coupidscourt.site/"],
+            origin: ["http://localhost:3001"],
             methods: ["GET", "POST"],
         },
     });
@@ -55,9 +55,23 @@ const initializeSocket = (server) => {
                 });
             }
         });
+        // Handle user blocking
+        socket.on("userBlocked", ({ blockedUserId, blockedByUserId }) => {
+            const blockedUserSocketId = userSocketMap[blockedUserId];
+            if (blockedUserSocketId) {
+                exports.io.to(blockedUserSocketId).emit("userWasBlocked", { blockedByUserId });
+            }
+        });
+        // Handle user unblocking
+        socket.on("userUnblocked", ({ unblockedUserId, unblockedByUserId }) => {
+            const unblockedUserSocketId = userSocketMap[unblockedUserId];
+            if (unblockedUserSocketId) {
+                exports.io.to(unblockedUserSocketId).emit("userWasUnblocked", { unblockedByUserId });
+            }
+        });
         //Notification
-        socket.on("notifyLike", (_a) => __awaiter(void 0, [_a], void 0, function* ({ name, likedUserId }) {
-            const receiverSocketId = (0, exports.getReceiverSocketId)(likedUserId);
+        socket.on("notificationForLike", (_a) => __awaiter(void 0, [_a], void 0, function* ({ likedUserId, name }) {
+            const receiverSocketId = userSocketMap[likedUserId];
             const notification = {
                 userId: likedUserId,
                 type: "like",
@@ -65,32 +79,32 @@ const initializeSocket = (server) => {
             };
             yield Notifications_1.default.create(notification);
             if (receiverSocketId) {
-                exports.io.to(receiverSocketId).emit("notification", notification);
+                exports.io.to(receiverSocketId).emit("OneUserLiked", { likedUserId, name });
             }
         }));
-        socket.on("notifyMessage", (_a) => __awaiter(void 0, [_a], void 0, function* ({ name, likedUserId }) {
-            const receiverSocketId = (0, exports.getReceiverSocketId)(likedUserId);
+        socket.on("notifyForMessage", (_a) => __awaiter(void 0, [_a], void 0, function* ({ name, receivedUserId }) {
+            const receiverSocketId = userSocketMap[receivedUserId];
             const notification = {
-                userId: likedUserId,
+                userId: receivedUserId,
                 type: "message",
-                message: `${name} sent you a message:`,
+                message: `${name} sent a message:`,
             };
             yield Notifications_1.default.create(notification);
             if (receiverSocketId) {
-                exports.io.to(receiverSocketId).emit("notification", notification);
+                exports.io.to(receiverSocketId).emit("OneMessage", { receivedUserId, name });
             }
         }));
-        socket.on("notifyMatch", (_a) => __awaiter(void 0, [_a], void 0, function* ({ user1Id, user2Id }) {
-            [user1Id, user2Id].forEach((userId) => __awaiter(void 0, void 0, void 0, function* () {
-                const receiverSocketId = (0, exports.getReceiverSocketId)(userId);
+        socket.on("notifyForMatch", (_a) => __awaiter(void 0, [_a], void 0, function* ({ user1Id, user2Id }) {
+            [user1Id, user2Id].forEach((userID) => __awaiter(void 0, void 0, void 0, function* () {
+                const receiverSocketId = userSocketMap[userID];
                 const notification = {
-                    userId,
+                    userID,
                     type: "match",
                     message: `"You have a new match!"`,
                 };
                 yield Notifications_1.default.create(notification);
                 if (receiverSocketId) {
-                    exports.io.to(receiverSocketId).emit("notification", notification);
+                    exports.io.to(receiverSocketId).emit("OneMatch", { userID });
                 }
             }));
         }));

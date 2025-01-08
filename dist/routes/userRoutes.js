@@ -50,4 +50,10 @@ router.get('/getArticleById/:articleId', userAuth_1.userProtect, userController.
 router.post('/createNotification', userAuth_1.userProtect, userController.createNotification);
 router.get('/getNotifications/:userId', userAuth_1.userProtect, userController.getNotification);
 router.delete('/clearNotifications/:userId', userAuth_1.userProtect, userController.clearNotifications);
+// BlOCK&UNBLOCK
+router.put('/userBlocked', userAuth_1.userProtect, userController.userBlocked);
+router.put('/userUnblocked', userAuth_1.userProtect, userController.userUnBlocked);
+router.get('/userBlockedList/:userId', userAuth_1.userProtect, userController.fetchBlockedUserList);
+//REPORT
+router.post('/createReport', userController.createReport);
 exports.default = router;

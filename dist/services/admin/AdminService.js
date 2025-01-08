@@ -129,6 +129,16 @@ let AdminService = class AdminService {
             };
         });
     }
+    getReportsWithMessages() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.adminRepository.getAllReportsWithMessages();
+        });
+    }
+    updateReportStatus(reportId, status) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.adminRepository.updateReportStatus(reportId, status);
+        });
+    }
 };
 exports.AdminService = AdminService;
 exports.AdminService = AdminService = __decorate([

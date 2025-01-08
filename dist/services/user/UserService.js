@@ -30,12 +30,10 @@ const userOtp_1 = require("../../utils/userOtp");
 const resetGmail_1 = require("../../utils/resetGmail");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
-// import Plan from "../../models/PlanModel";
 const calculateAge_1 = require("../../utils/calculateAge");
 const mongoose_1 = __importDefault(require("mongoose"));
 const multer_1 = require("../../config/multer");
 const calculateExpDate_1 = require("../../utils/calculateExpDate");
-// import { IPayment,CreatePaymentInput } from "../../types/payment.types";
 let UserService = class UserService {
     constructor(userRepository) {
         this.userRepository = userRepository;
@@ -532,6 +530,7 @@ let UserService = class UserService {
                         age: user.dateOfBirth,
                         place: userInfo.place,
                         image: userInfo.profilePhotos,
+                        blockedUsers: user.blockedUsers,
                     };
                 }
                 return null;
@@ -567,6 +566,39 @@ let UserService = class UserService {
     clearNotifications(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield this.userRepository.clearNotifications(userId);
+        });
+    }
+    userBlocked(userId, blockedUserId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.userRepository.userBlocked(userId, blockedUserId);
+        });
+    }
+    userUnblocked(userId, blockedUserId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.userRepository.userUnblocked(userId, blockedUserId);
+        });
+    }
+    userBlockedList(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield this.userRepository.findById(userId);
+                if (!user) {
+                    return null;
+                }
+                return {
+                    _id: user._id.toString(),
+                    blockedUsers: user.blockedUsers,
+                };
+            }
+            catch (err) {
+                console.error("Error in fetch blocked user:", err);
+                throw new Error("Unable to fetch blocked users");
+            }
+        });
+    }
+    createReport(reportData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.userRepository.createReport(reportData);
         });
     }
 };

@@ -98,8 +98,18 @@ const userSchema = new mongoose_1.default.Schema({
     mobileNumber: {
         type: String,
     },
-    otp: { type: String },
-    otpExpiresAt: { type: Date }
+    otp: {
+        type: String,
+    },
+    otpExpiresAt: {
+        type: Date,
+    },
+    blockedUsers: [
+        {
+            type: mongoose_1.Schema.Types.ObjectId,
+            ref: 'User'
+        }
+    ],
 }, {
     timestamps: true,
 });

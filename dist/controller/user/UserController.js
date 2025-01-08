@@ -27,7 +27,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const HttpStatusCode_1 = require("../../enums/HttpStatusCode");
-// import generateToken from '../../utils/generateToken';
 const inversify_1 = require("inversify");
 const StatusMessage_1 = require("../../enums/StatusMessage");
 const googleAuthService_1 = require("../../services/user/googleAuthService");
@@ -50,7 +49,6 @@ let UserController = class UserController {
                 const accessToken = tokenService_1.default.generateAccessToken(user._id.toString());
                 const refreshToken = tokenService_1.default.generateRefreshToken(user._id.toString());
                 tokenService_1.default.setTokenCookies(res, accessToken, refreshToken);
-                // generateToken(res, user._id.toString());
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({
                     _id: user._id,
                     name: user.name,
@@ -237,7 +235,6 @@ let UserController = class UserController {
             try {
                 const matchedUsers = yield this.userService.getMatchedUsers(userId);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json(matchedUsers);
-                // console.log(matchedUsers)
             }
             catch (error) {
                 console.log(error);
@@ -361,7 +358,8 @@ let UserController = class UserController {
                 }
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: 'Subscription cancelled successfully' });
             }
-            catch (error) {
+            catch (err) {
+                const error = err;
                 console.error(`Error cancelling subscription: ${error.message}`);
                 res
                     .status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR)
@@ -485,6 +483,104 @@ let UserController = class UserController {
             catch (err) {
                 console.log(err);
                 res.status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR).json({ message: "Failed to clear notification" });
+            }
+        }));
+        this.userBlocked = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+            const { userId, blockedUserId } = req.body;
+            try {
+                const user = yield this.userService.userBlocked(userId, blockedUserId);
+                if (!user) {
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                        .json({ message: 'User not found' });
+                    return;
+                }
+                res
+                    .status(HttpStatusCode_1.HttpStatusCode.OK)
+                    .json({
+                    message: 'Blocked successfully',
+                    data: user
+                });
+                return;
+            }
+            catch (err) {
+                console.error('Error in userBlocked controller:', err);
+                res
+                    .status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: 'Failed to block user' });
+                return;
+            }
+        }));
+        this.userUnBlocked = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+            const { userId, blockedUserId } = req.body;
+            try {
+                const user = yield this.userService.userUnblocked(userId, blockedUserId);
+                if (!user) {
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                        .json({ message: 'User not found' });
+                    return;
+                }
+                res
+                    .status(HttpStatusCode_1.HttpStatusCode.OK)
+                    .json({
+                    message: 'Unblocked successfully',
+                    data: user
+                });
+                return;
+            }
+            catch (err) {
+                console.error('Error in userBlocked controller:', err);
+                res
+                    .status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: 'Failed to block user' });
+                return;
+            }
+        }));
+        this.fetchBlockedUserList = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+            const { userId } = req.params;
+            try {
+                const blockeList = yield this.userService.userBlockedList(userId);
+                if (!blockeList) {
+                    res
+                        .status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND)
+                        .json({ message: 'User not found' });
+                    return;
+                }
+                res
+                    .status(HttpStatusCode_1.HttpStatusCode.OK)
+                    .json(blockeList);
+                return;
+            }
+            catch (err) {
+                console.error('Error in fetch user blocked list:', err);
+                res
+                    .status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: 'Failed to fetch user block list' });
+                return;
+            }
+        }));
+        this.createReport = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { reporterId, reportedId, reason, additionalDetails } = req.body;
+                if (!reporterId || !reportedId || !reason) {
+                    res.status(400).json({ message: 'Reporter ID, Reported ID, and Reason are required.' });
+                    return;
+                }
+                const report = yield this.userService.createReport({
+                    reporterId,
+                    reportedId,
+                    reason,
+                    additionalDetails,
+                    status: 'Pending',
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                });
+                res.status(201).json({ message: 'Report created successfully.', report });
+            }
+            catch (err) {
+                const error = err;
+                res.status(500).json({ message: 'Internal server error', error: error.message });
             }
         }));
     }

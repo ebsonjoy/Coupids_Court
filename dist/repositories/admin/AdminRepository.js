@@ -27,12 +27,16 @@ const User_1 = __importDefault(require("../../models/User"));
 const AdminModel_1 = __importDefault(require("../../models/AdminModel"));
 const PaymentModel_1 = __importDefault(require("../../models/PaymentModel"));
 const MatchModel_1 = __importDefault(require("../../models/MatchModel"));
+const MessageModel_1 = __importDefault(require("../../models/MessageModel"));
+const reportModel_1 = __importDefault(require("../../models/reportModel"));
 let AdminRepository = class AdminRepository {
-    constructor(adminModel = AdminModel_1.default, userModel = User_1.default, paymentModel = PaymentModel_1.default, matchModel = MatchModel_1.default) {
+    constructor(adminModel = AdminModel_1.default, userModel = User_1.default, paymentModel = PaymentModel_1.default, matchModel = MatchModel_1.default, MessageModel = MessageModel_1.default, reportModel = reportModel_1.default) {
         this.adminModel = adminModel;
         this.userModel = userModel;
         this.paymentModel = paymentModel;
         this.matchModel = matchModel;
+        this.MessageModel = MessageModel;
+        this.reportModel = reportModel;
     }
     authenticate(email) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -266,9 +270,35 @@ let AdminRepository = class AdminRepository {
             }));
         });
     }
+    getAllReportsWithMessages() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const reports = yield this.reportModel.find()
+                .populate("reporterId", "name email")
+                .populate("reportedId", "name email")
+                .lean();
+            const reportsWithMessages = yield Promise.all(reports.map((report) => __awaiter(this, void 0, void 0, function* () {
+                const messages = yield this.MessageModel.find({
+                    $or: [
+                        { senderId: report.reporterId, receiverId: report.reportedId },
+                        { senderId: report.reportedId, receiverId: report.reporterId },
+                    ],
+                })
+                    .sort({ createdAt: -1 })
+                    .limit(5)
+                    .lean();
+                return Object.assign(Object.assign({}, report), { messages });
+            })));
+            return reportsWithMessages;
+        });
+    }
+    updateReportStatus(reportId, status) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield reportModel_1.default.findByIdAndUpdate(reportId, { status, updatedAt: new Date() }, { new: true });
+        });
+    }
 };
 exports.AdminRepository = AdminRepository;
 exports.AdminRepository = AdminRepository = __decorate([
     (0, inversify_1.injectable)(),
-    __metadata("design:paramtypes", [Object, Object, Object, Object])
+    __metadata("design:paramtypes", [Object, Object, Object, Object, Object, Object])
 ], AdminRepository);

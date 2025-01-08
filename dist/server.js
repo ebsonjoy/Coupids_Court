@@ -21,15 +21,8 @@ const port = process.env.PORT || 4000;
 const server = http_1.default.createServer(app);
 (0, socket_1.initializeSocket)(server);
 (0, db_1.default)();
-// const corsOptions = {
-//   origin: ["http://localhost:3001", "https://coupidscourt.site/", "https://www.coupidscourt.site/"],
-//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow necessary methods
-//   allowedHeaders: ['Content-Type', 'Authorization'], // Allow necessary headers
-//   credentials: true // If you're using cookies or authentication
-// };
-// app.use(cors(corsOptions));
 app.use((0, cors_1.default)({
-    origin: 'https://www.coupidscourt.site', // Explicitly allow your frontend domain
+    origin: 'https://www.coupidscourt.site',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
