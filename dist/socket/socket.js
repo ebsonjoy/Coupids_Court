@@ -21,7 +21,7 @@ let playingArray = [];
 const initializeSocket = (server) => {
     exports.io = new socket_io_1.Server(server, {
         cors: {
-            origin: ["http://localhost:3001"],
+            origin: ['https://www.coupidscourt.site'],
             methods: ["GET", "POST"],
         },
     });

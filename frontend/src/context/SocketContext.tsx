@@ -30,8 +30,9 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   const dispatch = useDispatch();
   useEffect(() => {
     if (userId) {
-      const newSocket = io('http://localhost:5000', {
+      const newSocket = io('https://api.coupidscourt.site', {
         query: { userId },
+        transports: ['websocket']
       });
 
       setSocket(newSocket);

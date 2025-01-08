@@ -33,7 +33,7 @@ export let io: Server;
 export const initializeSocket = (server: http.Server): void => {
   io = new Server(server, {
     cors: {
-      origin: ["http://localhost:3001"], 
+      origin: ['https://www.coupidscourt.site'], 
       methods: ["GET", "POST"],
     },
   });
