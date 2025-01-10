@@ -55,5 +55,5 @@ router.put('/userBlocked', userAuth_1.userProtect, userController.userBlocked);
 router.put('/userUnblocked', userAuth_1.userProtect, userController.userUnBlocked);
 router.get('/userBlockedList/:userId', userAuth_1.userProtect, userController.fetchBlockedUserList);
 //REPORT
-router.post('/createReport', userController.createReport);
+router.post('/createReport', userAuth_1.userProtect, userController.createReport);
 exports.default = router;
