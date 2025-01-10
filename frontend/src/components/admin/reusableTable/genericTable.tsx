@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
-// Base interface for table data
 export interface TableData {
   _id: string;
 }
 
-// Improved Column interface with better type safety
+
 export interface Column<T> {
   key: keyof T;
   label: string;
@@ -65,7 +64,7 @@ function GenericTable<T extends TableData>({
           placeholder="Search..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="px-3 py-2 border rounded-md w-full md:w-72 focus:outline-none focus:border-blue-500"
+          className="px-3 py-2 border rounded-md w-full md:w-72 focus:outline-none focus:border-blue-500 text-white"
         />
       </div>
 
