@@ -14,12 +14,9 @@ const PlanController_1 = require("../controller/plan/PlanController");
 const AdminRepository_1 = require("../repositories/admin/AdminRepository");
 const AdminService_1 = require("../services/admin/AdminService");
 const AdminController_1 = require("../controller/admin/AdminController");
-const AdminModel_1 = __importDefault(require("../models/AdminModel"));
-const User_1 = __importDefault(require("../models/User"));
 const UserRepository_1 = require("../repositories/user/UserRepository");
 const UserService_1 = require("../services/user/UserService");
 const UserController_1 = require("../controller/user/UserController");
-const UserInfo_1 = __importDefault(require("../models/UserInfo"));
 const messageRepository_1 = require("../repositories/messages/messageRepository");
 const messageService_1 = require("../services/messages/messageService");
 const MessageController_1 = require("../controller/messages/MessageController");
@@ -41,13 +38,13 @@ container.bind('IPlanService').to(PlanService_1.PlanService).inSingletonScope();
 container.bind('PlanController').to(PlanController_1.PlanController).inSingletonScope();
 // Admin Container
 container.bind('IAdminRepository').toDynamicValue(() => {
-    return new AdminRepository_1.AdminRepository(AdminModel_1.default, User_1.default);
+    return new AdminRepository_1.AdminRepository();
 }).inSingletonScope();
 container.bind('IAdminService').to(AdminService_1.AdminService).inSingletonScope();
 container.bind('AdminController').to(AdminController_1.AdminController).inSingletonScope();
 // User Container
 container.bind('IUserRepository').toDynamicValue(() => {
-    return new UserRepository_1.UserRepository(User_1.default, UserInfo_1.default);
+    return new UserRepository_1.UserRepository();
 }).inSingletonScope();
 container.bind('IUserService').to(UserService_1.UserService).inSingletonScope();
 container.bind('UserController').to(UserController_1.UserController).inSingletonScope();

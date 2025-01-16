@@ -1,50 +1,47 @@
-import { Model, Document } from "mongoose";
-import { IRepository } from "../../interfaces/base/IBaseRepository";
+import { Model } from "mongoose";
+import { IBaseRepository } from "../../interfaces/base/IBaseRepository";
 
-export abstract class BaseRepository<T extends Document>
-  implements IRepository<T>
-{
-  constructor(protected readonly model: Model<T>) {}
+export class BaseRepository<T> implements IBaseRepository<T> {
+  constructor(private readonly model: Model<T>) {}
 
-  async getAll(): Promise<T[]> {
+  async createNewData(data: Partial<T>): Promise<T> {
     try {
-      return await this.model.find({}).exec();
+      return await this.model.create(data);
     } catch (error) {
-      console.log(error);
-      throw new Error("Failed to retrieve items");
+      throw new Error(`Error creating data: ${error}`);
     }
   }
 
-  async getById(id: string): Promise<T> {
-    const item = await this.model.findById(id).exec();
-    if (!item) throw new Error("Item not found");
-    return item;
-  }
-
-  async create(item: T): Promise<T> {
+  async findOneById(id: string): Promise<T | null> {
     try {
-      return await this.model.create(item);
+      return await this.model.findById(id).exec();
     } catch (error) {
-      console.log(error);
-      throw new Error("Failed to create item");
+      throw new Error(`Error finding data by ID: ${error}`);
     }
   }
 
-  async update(id: string, item: Partial<T>): Promise<T> {
-    const updated = await this.model
-      .findByIdAndUpdate(id, item, { new: true })
-      .exec();
-    if (!updated) throw new Error("Item not found");
-    return updated;
+  async findAllData(): Promise<T[]> {
+    try {
+      return await this.model.find().exec();
+    } catch (error) {
+      throw new Error(`Error finding all data: ${error}`);
+    }
   }
 
-  async delete(id: string): Promise<boolean> {
+  async updateOneById(id: string, data: Partial<T>): Promise<T | null> {
+    try {
+      return await this.model.findByIdAndUpdate(id, { $set: data }, { new: true });
+    } catch (error) {
+      throw new Error(`Error updating data: ${error}`);
+    }
+  }
+
+  async deleteOneById(id: string): Promise<boolean> {
     try {
       const result = await this.model.findByIdAndDelete(id).exec();
-      return !!result;
+      return result !== null;
     } catch (error) {
-      console.log(error);
-      throw new Error("Failed to delete item");
+      throw new Error(`Error deleting data: ${error}`);
     }
   }
 }

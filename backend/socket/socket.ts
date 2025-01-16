@@ -46,10 +46,9 @@ export const initializeSocket = (server: http.Server): void => {
       userSocketMap[userId] = socket.id;
     }
 
-    // Existing online users functionality
+
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
-    // Handle message read status
     socket.on("markMessageRead", ({ messageId, senderId, readerId }) => {
       const senderSocketId = userSocketMap[senderId];
       if (senderSocketId) {
@@ -60,7 +59,6 @@ export const initializeSocket = (server: http.Server): void => {
       }
     });
 
-    // Existing messaging functionality
     socket.on("sendMessage", ({ receiverId, message }) => {
       const receiverSocketId = userSocketMap[receiverId];
       if (receiverSocketId) {
@@ -73,7 +71,7 @@ export const initializeSocket = (server: http.Server): void => {
       }
     });
 
-    // Handle user blocking
+
     socket.on("userBlocked", ({ blockedUserId, blockedByUserId }) => {
       const blockedUserSocketId = userSocketMap[blockedUserId];
       if (blockedUserSocketId) {
@@ -81,7 +79,7 @@ export const initializeSocket = (server: http.Server): void => {
       }
     });
 
-    // Handle user unblocking
+
     socket.on("userUnblocked", ({ unblockedUserId, unblockedByUserId }) => {
       const unblockedUserSocketId = userSocketMap[unblockedUserId];
       if (unblockedUserSocketId) {

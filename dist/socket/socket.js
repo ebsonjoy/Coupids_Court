@@ -31,9 +31,7 @@ const initializeSocket = (server) => {
         if (userId && userId !== "undefined") {
             userSocketMap[userId] = socket.id;
         }
-        // Existing online users functionality
         exports.io.emit("getOnlineUsers", Object.keys(userSocketMap));
-        // Handle message read status
         socket.on("markMessageRead", ({ messageId, senderId, readerId }) => {
             const senderSocketId = userSocketMap[senderId];
             if (senderSocketId) {
@@ -43,7 +41,6 @@ const initializeSocket = (server) => {
                 });
             }
         });
-        // Existing messaging functionality
         socket.on("sendMessage", ({ receiverId, message }) => {
             const receiverSocketId = userSocketMap[receiverId];
             if (receiverSocketId) {
@@ -55,14 +52,12 @@ const initializeSocket = (server) => {
                 });
             }
         });
-        // Handle user blocking
         socket.on("userBlocked", ({ blockedUserId, blockedByUserId }) => {
             const blockedUserSocketId = userSocketMap[blockedUserId];
             if (blockedUserSocketId) {
                 exports.io.to(blockedUserSocketId).emit("userWasBlocked", { blockedByUserId });
             }
         });
-        // Handle user unblocking
         socket.on("userUnblocked", ({ unblockedUserId, unblockedByUserId }) => {
             const unblockedUserSocketId = userSocketMap[unblockedUserId];
             if (unblockedUserSocketId) {

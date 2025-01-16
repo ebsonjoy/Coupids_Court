@@ -14,55 +14,54 @@ class BaseRepository {
     constructor(model) {
         this.model = model;
     }
-    getAll() {
+    createNewData(data) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.model.find({}).exec();
+                return yield this.model.create(data);
             }
             catch (error) {
-                console.log(error);
-                throw new Error("Failed to retrieve items");
+                throw new Error(`Error creating data: ${error}`);
             }
         });
     }
-    getById(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const item = yield this.model.findById(id).exec();
-            if (!item)
-                throw new Error("Item not found");
-            return item;
-        });
-    }
-    create(item) {
+    findOneById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.model.create(item);
+                return yield this.model.findById(id).exec();
             }
             catch (error) {
-                console.log(error);
-                throw new Error("Failed to create item");
+                throw new Error(`Error finding data by ID: ${error}`);
             }
         });
     }
-    update(id, item) {
+    findAllData() {
         return __awaiter(this, void 0, void 0, function* () {
-            const updated = yield this.model
-                .findByIdAndUpdate(id, item, { new: true })
-                .exec();
-            if (!updated)
-                throw new Error("Item not found");
-            return updated;
+            try {
+                return yield this.model.find().exec();
+            }
+            catch (error) {
+                throw new Error(`Error finding all data: ${error}`);
+            }
         });
     }
-    delete(id) {
+    updateOneById(id, data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.model.findByIdAndUpdate(id, { $set: data }, { new: true });
+            }
+            catch (error) {
+                throw new Error(`Error updating data: ${error}`);
+            }
+        });
+    }
+    deleteOneById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield this.model.findByIdAndDelete(id).exec();
-                return !!result;
+                return result !== null;
             }
             catch (error) {
-                console.log(error);
-                throw new Error("Failed to delete item");
+                throw new Error(`Error deleting data: ${error}`);
             }
         });
     }

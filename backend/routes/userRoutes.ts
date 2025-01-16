@@ -25,6 +25,7 @@ router.post("/password-reset-request", userController.requestPasswordReset);
 router.post("/reset-password/:token", userController.resetPassword);
 router.post("/userInfoSignUp",multerUploadUserImg.array("profilePhotos", 4),userController.createUserInfo);
 
+
 // Google Login
 router.post('/auth/google', userController.googleAuth);
 

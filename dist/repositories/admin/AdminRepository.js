@@ -29,14 +29,16 @@ const PaymentModel_1 = __importDefault(require("../../models/PaymentModel"));
 const MatchModel_1 = __importDefault(require("../../models/MatchModel"));
 const MessageModel_1 = __importDefault(require("../../models/MessageModel"));
 const reportModel_1 = __importDefault(require("../../models/reportModel"));
-let AdminRepository = class AdminRepository {
-    constructor(adminModel = AdminModel_1.default, userModel = User_1.default, paymentModel = PaymentModel_1.default, matchModel = MatchModel_1.default, MessageModel = MessageModel_1.default, reportModel = reportModel_1.default) {
-        this.adminModel = adminModel;
-        this.userModel = userModel;
-        this.paymentModel = paymentModel;
-        this.matchModel = matchModel;
-        this.MessageModel = MessageModel;
-        this.reportModel = reportModel;
+const BaseRepository_1 = require("../base/BaseRepository");
+let AdminRepository = class AdminRepository extends BaseRepository_1.BaseRepository {
+    constructor() {
+        super(AdminModel_1.default);
+        this.adminModel = AdminModel_1.default;
+        this.userModel = User_1.default;
+        this.paymentModel = PaymentModel_1.default;
+        this.matchModel = MatchModel_1.default;
+        this.MessageModel = MessageModel_1.default;
+        this.reportModel = reportModel_1.default;
     }
     authenticate(email) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -300,5 +302,5 @@ let AdminRepository = class AdminRepository {
 exports.AdminRepository = AdminRepository;
 exports.AdminRepository = AdminRepository = __decorate([
     (0, inversify_1.injectable)(),
-    __metadata("design:paramtypes", [Object, Object, Object, Object, Object, Object])
+    __metadata("design:paramtypes", [])
 ], AdminRepository);

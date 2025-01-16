@@ -210,8 +210,10 @@ export class UserController {
             res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({ message: StatusMessage.INTERNAL_SERVER_ERROR }); 
         }
     });
+
   
-    createUserInfo = asyncHandler(async (req: Request, res: Response) => {     
+    createUserInfo = asyncHandler(async (req: Request, res: Response) => {    
+        console.log(req.body) 
         const profilePhotos = (req.files as Express.MulterS3.File[]) || [];
         if (typeof req.body.location === 'string') {
             req.body.location = JSON.parse(req.body.location);

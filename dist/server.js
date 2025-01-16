@@ -9,6 +9,7 @@ const express_1 = __importDefault(require("express"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const http_1 = __importDefault(require("http"));
 const cors_1 = __importDefault(require("cors"));
+const morgan_1 = __importDefault(require("morgan"));
 const db_1 = __importDefault(require("./config/db"));
 const socket_1 = require("./socket/socket");
 const errorMiddleware_1 = require("./middleware/errorMiddleware");
@@ -31,6 +32,7 @@ app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.static("backend/public"));
 app.use(express_1.default.urlencoded({ extended: true }));
+app.use((0, morgan_1.default)('dev'));
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Credentials', 'true');
     next();

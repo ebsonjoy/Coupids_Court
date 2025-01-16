@@ -4,6 +4,8 @@ import express, { Express } from "express";
 import cookieParser from "cookie-parser";
 import http from "http";
 import cors from "cors";
+import morgan from "morgan";
+
 
 import connectDB from "./config/db";
 import { initializeSocket } from "./socket/socket";
@@ -37,11 +39,12 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.static("backend/public"));
 app.use(express.urlencoded({ extended: true }));
+app.use(morgan('dev'))
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Credentials', 'true');
   next();
-});
+});             
 
 app.get("/", (req, res) => {
   res.send("Server is ready");

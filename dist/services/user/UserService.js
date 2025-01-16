@@ -53,22 +53,6 @@ let UserService = class UserService {
             }
         });
     }
-    // async registerUser(userData: IUser): Promise<IUser | null> {
-    //     try {
-    //         const otp = generateOTP();
-    //         const otpExpiresAt = new Date(Date.now() + 1 * 60 * 1000);
-    //         const user = await this.userRepository.register({
-    //             ...userData,
-    //             otp,
-    //             otpExpiresAt
-    //         });
-    //         await sendOTP(userData.email, otp);
-    //         return user;
-    //     } catch (error) {
-    //         console.log(error);
-    //         throw new Error('Failed to register user');
-    //     }
-    // }
     registerUser(userData) {
         return __awaiter(this, void 0, void 0, function* () {
             const planId = '675315d8356f388bd2d2844e';
@@ -88,14 +72,14 @@ let UserService = class UserService {
                 }
                 const otp = (0, userOtp_1.generateOTP)();
                 const otpExpiresAt = new Date(Date.now() + 1 * 60 * 1000);
-                const user = yield this.userRepository.register(Object.assign(Object.assign({}, userData), { otp,
+                const user = yield this.userRepository.createNewData(Object.assign(Object.assign({}, userData), { otp,
                     otpExpiresAt }));
                 if (!user) {
                     throw new Error('User registration failed');
                 }
                 yield (0, userOtp_1.sendOTP)(userData.email, otp);
                 if (dataToUpdate) {
-                    yield this.userRepository.update(user._id.toString(), dataToUpdate);
+                    yield this.userRepository.updateOneById(user._id.toString(), dataToUpdate);
                 }
                 return user;
             }

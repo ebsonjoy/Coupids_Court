@@ -207,6 +207,7 @@ let UserController = class UserController {
             }
         }));
         this.createUserInfo = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+            console.log(req.body);
             const profilePhotos = req.files || [];
             if (typeof req.body.location === 'string') {
                 req.body.location = JSON.parse(req.body.location);

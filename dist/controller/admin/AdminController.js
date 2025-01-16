@@ -71,6 +71,7 @@ let AdminController = class AdminController {
                     expires: new Date(0),
                 });
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS });
+                console.log('log Out success');
             }
             catch (error) {
                 console.error(error);
@@ -134,7 +135,6 @@ let AdminController = class AdminController {
                 }
                 const data = yield this.adminService.getUserChartData(timeRange);
                 res.status(200).json(data);
-                console.log('user data', data);
             }
             catch (error) {
                 res.status(500).json({ message: 'Error fetching user chart data', error });
@@ -148,7 +148,6 @@ let AdminController = class AdminController {
                     return;
                 }
                 const data = yield this.adminService.getPaymentChartData(timeRange);
-                console.log('payment data', data);
                 res.status(200).json(data);
             }
             catch (error) {
@@ -175,7 +174,6 @@ let AdminController = class AdminController {
         this.updateReportStatus = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             const { reportId } = req.params;
             const { status } = req.body;
-            console.log('reportId', reportId, 'status', status);
             if (!['Pending', 'Reviewed', 'Resolved'].includes(status)) {
                 res.status(400).json({ message: 'Invalid status value' });
                 return;
