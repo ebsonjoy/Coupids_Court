@@ -23,7 +23,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdviceService = void 0;
 const inversify_1 = require("inversify");
-const multer_1 = require("../../config/multer");
+const s3Service_1 = require("../../config/s3Service");
 let AdviceService = class AdviceService {
     constructor(AdviceRepository) {
         this.AdviceRepository = AdviceRepository;
@@ -87,7 +87,7 @@ let AdviceService = class AdviceService {
             }
         });
     }
-    updateAdiveCategory(id, updateData, file) {
+    updateAdiveCategory(id, updateData, imageUrl) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const currentCategory = yield this.AdviceRepository.getSingleAdviceCategory(id);
@@ -100,9 +100,9 @@ let AdviceService = class AdviceService {
                         throw new Error(`Category with name "${updateData.name}" already exists.`);
                     }
                 }
-                if (file) {
-                    yield (0, multer_1.deleteImageFromS3)(currentCategory.image);
-                    updateData.image = file.location;
+                if (imageUrl) {
+                    yield s3Service_1.s3Service.deleteImageFromS3Bucket(currentCategory.image);
+                    updateData.image = imageUrl;
                 }
                 else {
                     updateData.image = currentCategory.image;
@@ -178,7 +178,7 @@ let AdviceService = class AdviceService {
             }
         });
     }
-    updateArticle(articleId, updateData, file) {
+    updateArticle(articleId, updateData, imageUrl) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const currentArticle = yield this.AdviceRepository.getSingleArtilce(articleId);
@@ -191,9 +191,9 @@ let AdviceService = class AdviceService {
                         throw new Error(`Article with title "${updateData.title}" already exists.`);
                     }
                 }
-                if (file) {
-                    yield (0, multer_1.deleteImageFromS3)((currentArticle === null || currentArticle === void 0 ? void 0 : currentArticle.image) || '');
-                    updateData.image = file.location;
+                if (imageUrl) {
+                    yield s3Service_1.s3Service.deleteImageFromS3Bucket((currentArticle === null || currentArticle === void 0 ? void 0 : currentArticle.image) || '');
+                    updateData.image = imageUrl;
                 }
                 else {
                     updateData.image = currentArticle === null || currentArticle === void 0 ? void 0 : currentArticle.image;
@@ -213,7 +213,7 @@ let AdviceService = class AdviceService {
                 if (!article)
                     throw new Error('Article not found');
                 if (article.image) {
-                    yield (0, multer_1.deleteImageFromS3)(article.image);
+                    yield s3Service_1.s3Service.deleteImageFromS3Bucket(article.image);
                 }
                 return article;
             }

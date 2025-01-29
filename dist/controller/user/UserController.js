@@ -31,6 +31,7 @@ const inversify_1 = require("inversify");
 const StatusMessage_1 = require("../../enums/StatusMessage");
 const googleAuthService_1 = require("../../services/user/googleAuthService");
 const tokenService_1 = __importDefault(require("../../utils/tokenService"));
+const s3Service_1 = require("../../config/s3Service");
 let UserController = class UserController {
     constructor(userService) {
         this.userService = userService;
@@ -53,6 +54,7 @@ let UserController = class UserController {
                     _id: user._id,
                     name: user.name,
                     email: user.email,
+                    role: user.role,
                 });
             }
             catch (error) {
@@ -131,7 +133,6 @@ let UserController = class UserController {
                     });
                     return;
                 }
-                //   generateToken(res, user._id.toString());
                 const accessToken = tokenService_1.default.generateAccessToken(user._id.toString());
                 const refreshToken = tokenService_1.default.generateRefreshToken(user._id.toString());
                 tokenService_1.default.setTokenCookies(res, accessToken, refreshToken);
@@ -139,6 +140,7 @@ let UserController = class UserController {
                     _id: user._id,
                     name: user.name,
                     email: user.email,
+                    role: user.role,
                     isGoogleLogin: user.isGoogleLogin,
                 });
             }
@@ -206,9 +208,24 @@ let UserController = class UserController {
                 res.status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR).json({ message: StatusMessage_1.StatusMessage.INTERNAL_SERVER_ERROR });
             }
         }));
+        this.getPresignedUrl = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+            const { fileTypes } = req.body;
+            if (!fileTypes || !Array.isArray(fileTypes)) {
+                res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST)
+                    .json({ message: "File types are required" });
+                return;
+            }
+            try {
+                const signedUrls = yield s3Service_1.s3Service.generateSignedUrls(fileTypes);
+                res.json({ signedUrls });
+            }
+            catch (error) {
+                console.error('Error generating signed URLs:', error);
+                res.status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: StatusMessage_1.StatusMessage.INTERNAL_SERVER_ERROR });
+            }
+        }));
         this.createUserInfo = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
-            console.log(req.body);
-            const profilePhotos = req.files || [];
             if (typeof req.body.location === 'string') {
                 req.body.location = JSON.parse(req.body.location);
             }
@@ -222,7 +239,7 @@ let UserController = class UserController {
                 return;
             }
             try {
-                const userInfoData = Object.assign(Object.assign({}, req.body), { profilePhotos: profilePhotos.map((file) => file.location) });
+                const userInfoData = Object.assign(Object.assign({}, req.body), { profilePhotos: req.body.profilePhotos });
                 const newUserInfo = yield this.userService.createUserInfo(userInfoData);
                 res.status(HttpStatusCode_1.HttpStatusCode.CREATED).json(newUserInfo);
             }
@@ -290,7 +307,9 @@ let UserController = class UserController {
         }));
         this.updateUserDatingInfo = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             const { userId } = req.params;
-            const uploadedPhotos = req.files || [];
+            const uploadedPhotos = Array.isArray(req.body.profilePhotos)
+                ? req.body.profilePhotos
+                : [req.body.profilePhotos];
             const data = req.body;
             try {
                 const userInfo = yield this.userService.updateUserDatingInfo(userId, data, uploadedPhotos);

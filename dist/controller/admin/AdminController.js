@@ -28,9 +28,9 @@ exports.AdminController = void 0;
 const inversify_1 = require("inversify");
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const HttpStatusCode_1 = require("../../enums/HttpStatusCode");
-const generateAdminToken_1 = __importDefault(require("../../utils/generateAdminToken"));
 const StatusMessage_1 = require("../../enums/StatusMessage");
 const socket_1 = require("../../socket/socket");
+const adminTokenService_1 = __importDefault(require("../../utils/adminTokenService"));
 let AdminController = class AdminController {
     constructor(adminService) {
         this.adminService = adminService;
@@ -39,10 +39,13 @@ let AdminController = class AdminController {
             try {
                 const admin = yield this.adminService.authenticateAdmin(email, password);
                 if (admin) {
-                    (0, generateAdminToken_1.default)(res, admin._id.toString());
+                    const adminAccessToken = adminTokenService_1.default.generateAdminAccessToken(admin._id.toString());
+                    const adminRefreshToken = adminTokenService_1.default.generateAdminRefreshToken(admin._id.toString());
+                    adminTokenService_1.default.setAdminTokenCookies(res, adminAccessToken, adminRefreshToken);
                     res.status(HttpStatusCode_1.HttpStatusCode.OK).json({
                         _id: admin._id,
                         email: admin.email,
+                        role: admin.role,
                     });
                 }
                 else {
@@ -66,9 +69,13 @@ let AdminController = class AdminController {
         }));
         this.logout = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                res.cookie("admin_jwt", "", {
+                res.cookie("adminAccessToken", "", {
                     httpOnly: true,
                     expires: new Date(0),
+                });
+                res.cookie('adminRefreshToken', '', {
+                    httpOnly: true,
+                    expires: new Date(0)
                 });
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ message: StatusMessage_1.StatusMessage.SUCCESS });
                 console.log('log Out success');

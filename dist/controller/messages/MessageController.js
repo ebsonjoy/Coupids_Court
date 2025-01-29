@@ -118,16 +118,6 @@ let MessageController = class MessageController {
             try {
                 const updatedMessages = yield this.messageService.markMessagesAsRead(userId, senderId);
                 console.log(updatedMessages);
-                // Emit socket event for each updated message
-                //   const senderSocketId = getReceiverSocketId(senderId);
-                // if (senderSocketId) {
-                //   updatedMessages.forEach((message) => {
-                //     io.to(senderSocketId).emit("messageRead", {
-                //       messageId: message._id,
-                //       readerId: userId,
-                //     });
-                //   });
-                // }
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({ success: true });
             }
             catch (error) {
@@ -138,21 +128,6 @@ let MessageController = class MessageController {
                 });
             }
         }));
-        // markMessagesAsRead = asyncHandler(
-        //   async (req: Request, res: Response): Promise<void> => {
-        //     const { userId, senderId } = req.body;
-        //     try {
-        //       await this.messageService.markMessagesAsRead(userId, senderId);
-        //       res.status(HttpStatusCode.OK).json({ success: true });
-        //     } catch (error) {
-        //       console.error(error);
-        //       res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-        //         success: false,
-        //         error: "Failed to mark messages as read",
-        //       });
-        //     }
-        //   }
-        // );
         this.getUnreadMessageCount = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             const { userId } = req.query;
             try {

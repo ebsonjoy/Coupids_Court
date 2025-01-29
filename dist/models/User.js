@@ -60,6 +60,11 @@ const userSchema = new mongoose_1.default.Schema({
         sparse: true,
         unique: true,
     },
+    role: {
+        type: String,
+        enum: ['user'],
+        default: 'user',
+    },
     subscription: {
         isPremium: {
             type: Boolean,

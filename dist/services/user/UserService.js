@@ -32,8 +32,8 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const calculateAge_1 = require("../../utils/calculateAge");
 const mongoose_1 = __importDefault(require("mongoose"));
-const multer_1 = require("../../config/multer");
 const calculateExpDate_1 = require("../../utils/calculateExpDate");
+const s3Service_1 = require("../../config/s3Service");
 let UserService = class UserService {
     constructor(userRepository) {
         this.userRepository = userRepository;
@@ -365,9 +365,12 @@ let UserService = class UserService {
                 if (!plan) {
                     throw new Error(`Plan not found for ID: ${subscriptionData.planId}`);
                 }
-                const count = yield this.userRepository.paymentsCount();
-                const paymentCount = count === null ? 0 : count;
-                const paymentId = (paymentCount + 1).toString().padStart(4, '0');
+                const lastPayment = yield this.userRepository.findLastPayment();
+                let paymentId = '0001';
+                if (lastPayment) {
+                    const lastId = parseInt(lastPayment.paymentId, 10);
+                    paymentId = (lastId + 1).toString().padStart(4, '0');
+                }
                 const paymentData = {
                     paymentId,
                     userName: user.name,
@@ -395,11 +398,12 @@ let UserService = class UserService {
                 if (!currentUserInfo) {
                     throw new Error('User info not found');
                 }
+                console.log('uploadedPhotoservice', uploadedPhotos);
                 const imgIndex = data.imgIndex && data.imgIndex.trim() !== '' ? data.imgIndex.split(',').map(Number) : [];
                 if (imgIndex.length > 0) {
                     imgIndex.forEach((index, i) => {
-                        (0, multer_1.deleteImageFromS3)(currentUserInfo.profilePhotos[index]);
-                        currentUserInfo.profilePhotos[index] = uploadedPhotos[i].location;
+                        s3Service_1.s3Service.deleteImageFromS3Bucket(currentUserInfo.profilePhotos[index]);
+                        currentUserInfo.profilePhotos[index] = uploadedPhotos[i];
                     });
                 }
                 imgIndex.length = 0;
@@ -418,6 +422,7 @@ let UserService = class UserService {
                     caste: data.caste,
                     profilePhotos: currentUserInfo.profilePhotos,
                 };
+                console.log('updatedDataupdatedData', updatedData);
                 return yield this.userRepository.updateUserInfo(userId, updatedData);
             }
             catch (error) {

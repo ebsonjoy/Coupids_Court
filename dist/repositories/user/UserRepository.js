@@ -280,6 +280,11 @@ let UserRepository = class UserRepository extends BaseRepository_1.BaseRepositor
             });
         });
     }
+    findLastPayment() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.PaymentModel.findOne().sort({ paymentId: -1 });
+        });
+    }
     createPayment(paymentData) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.PaymentModel.create(paymentData);

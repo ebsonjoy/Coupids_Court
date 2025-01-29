@@ -6,11 +6,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const container_1 = require("../config/container");
 const userAuth_1 = require("../middleware/userAuth");
-const multer_1 = require("../config/multer");
 const userValidation_1 = __importDefault(require("../validation/userValidation"));
-const multer_2 = __importDefault(require("multer"));
+const multer_1 = __importDefault(require("multer"));
 const checkSubscription_1 = require("../middleware/checkSubscription ");
-const upload = (0, multer_2.default)();
+const upload = (0, multer_1.default)();
 const router = express_1.default.Router();
 const userController = container_1.container.get('UserController');
 //container User
@@ -22,14 +21,15 @@ router.post("/verifyOtp", userController.verifyOTP);
 router.post("/resendOtp", userController.resendOTP);
 router.post("/password-reset-request", userController.requestPasswordReset);
 router.post("/reset-password/:token", userController.resetPassword);
-router.post("/userInfoSignUp", multer_1.multerUploadUserImg.array("profilePhotos", 4), userController.createUserInfo);
+router.post("/userInfoSignUp", userController.createUserInfo);
+router.post("/getSignedUrls", userController.getPresignedUrl);
 // Google Login
 router.post('/auth/google', userController.googleAuth);
 router.get("/getHomeUsersProfiles/:userId", userAuth_1.userProtect, userController.getHomeUsersProfiles);
 router.get("/getUserProfile/:userId", userAuth_1.userProtect, userController.getUserProfile);
 router.get('/getUserDetails/:userId', userAuth_1.userProtect, userController.getUserDetails);
 router.put("/updatePersonalInfo/:userId", userAuth_1.userProtect, upload.none(), userController.updatedPersonalInfo);
-router.put("/updateDatingInfo/:userId", userAuth_1.userProtect, multer_1.multerUploadUserImg.array("profilePhotos", 4), userController.updateUserDatingInfo);
+router.put("/updateDatingInfo/:userId", userAuth_1.userProtect, upload.none(), userController.updateUserDatingInfo);
 // Plan
 router.get('/getUserPlans/:userId', userAuth_1.userProtect, userController.getUserPlan);
 router.put('/updateUserSubscription/:userId', userAuth_1.userProtect, userController.updateUserSubscription);

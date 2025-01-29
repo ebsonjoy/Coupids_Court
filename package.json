@@ -34,7 +34,8 @@
     "typescript-eslint": "^8.8.0"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.682.0",
+    "@aws-sdk/client-s3": "^3.726.0",
+    "@aws-sdk/s3-request-presigner": "^3.726.0",
     "@decorators/di": "^3.1.0",
     "@react-oauth/google": "^0.12.1",
     "aws-sdk": "^2.1691.0",

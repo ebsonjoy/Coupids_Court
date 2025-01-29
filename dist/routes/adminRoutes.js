@@ -4,45 +4,49 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const adminAuthMiddleware_1 = require("../middleware/adminAuthMiddleware");
 const container_1 = require("../config/container");
 const validatePlanDetails_1 = require("../validation/validatePlanDetails");
-const multer_1 = require("../config/multer");
+const adminAuth_1 = require("../middleware/adminAuth");
+const multer_1 = __importDefault(require("multer"));
 const router = express_1.default.Router();
+const upload = (0, multer_1.default)();
 const adminControllerr = container_1.container.get('AdminController');
 const planController = container_1.container.get('PlanController');
 const adviceController = container_1.container.get('AdviceController');
 // container admin
-router.get('/getAllUsers', adminAuthMiddleware_1.protect, adminControllerr.getAllUsers);
-router.post('/login', adminControllerr.login);
-router.put('/updateUserStatus/:userId', adminAuthMiddleware_1.protect, adminControllerr.updateUserStatus);
 router.post('/logoutAdmin', adminControllerr.logout);
 router.post('/create', adminControllerr.register);
-router.get('/paymentDetails', adminAuthMiddleware_1.protect, adminControllerr.fetchPayments);
-router.get('/dashBoardMasterData', adminAuthMiddleware_1.protect, adminControllerr.getDashboardMasterData);
-router.get('/dashboard/users', adminAuthMiddleware_1.protect, adminControllerr.getUserChartData);
-router.get('/dashboard/payments', adminAuthMiddleware_1.protect, adminControllerr.getPaymentChartData);
+router.post('/login', adminControllerr.login);
+router.get('/getAllUsers', adminAuth_1.adminProtect, adminControllerr.getAllUsers);
+router.put('/updateUserStatus/:userId', adminAuth_1.adminProtect, adminControllerr.updateUserStatus);
+router.get('/paymentDetails', adminAuth_1.adminProtect, adminControllerr.fetchPayments);
+router.get('/dashBoardMasterData', adminAuth_1.adminProtect, adminControllerr.getDashboardMasterData);
+router.get('/dashboard/users', adminAuth_1.adminProtect, adminControllerr.getUserChartData);
+router.get('/dashboard/payments', adminAuth_1.adminProtect, adminControllerr.getPaymentChartData);
 //contaner Plan
-router.get('/getAllPlans', adminAuthMiddleware_1.protect, planController.getPlans);
-router.get('/getOnePlan/:planId', adminAuthMiddleware_1.protect, planController.getOnePlan);
-router.post('/createNewPlan', adminAuthMiddleware_1.protect, validatePlanDetails_1.validatePlanDetails, planController.createPlan);
-router.put('/updatePlan/:planId', adminAuthMiddleware_1.protect, planController.updatePlan);
-router.put('/updatePlanStatus/:planId', adminAuthMiddleware_1.protect, planController.updatePlanStatus);
+router.get('/getAllPlans', adminAuth_1.adminProtect, planController.getPlans);
+router.get('/getOnePlan/:planId', adminAuth_1.adminProtect, planController.getOnePlan);
+router.post('/createNewPlan', adminAuth_1.adminProtect, validatePlanDetails_1.validatePlanDetails, planController.createPlan);
+router.put('/updatePlan/:planId', adminAuth_1.adminProtect, planController.updatePlan);
+router.put('/updatePlanStatus/:planId', adminAuth_1.adminProtect, planController.updatePlanStatus);
 //container Advice
 //Category
-router.post('/createAdviceCategory', adminAuthMiddleware_1.protect, multer_1.multerUploadUserImg.single("image"), adviceController.createAdviceCategory);
-router.get('/getAdviceCategories', adminAuthMiddleware_1.protect, adviceController.getAdviceCategory);
-router.put('/blockAdviceCategory/:categoryId', adminAuthMiddleware_1.protect, adviceController.blockAdviceCategory);
-router.get('/getSingleAdviceCategory/:categoryId', adminAuthMiddleware_1.protect, adviceController.getSingleAdviceCategory);
-router.put('/updateAdviceCategory/:categoryId', adminAuthMiddleware_1.protect, multer_1.multerUploadUserImg.single("image"), adviceController.updateAdviceCategory);
+router.post('/createAdviceCategory', adminAuth_1.adminProtect, upload.none(), adviceController.createAdviceCategory);
+router.get('/getAdviceCategories', adminAuth_1.adminProtect, adviceController.getAdviceCategory);
+router.put('/blockAdviceCategory/:categoryId', adminAuth_1.adminProtect, adviceController.blockAdviceCategory);
+router.get('/getSingleAdviceCategory/:categoryId', adminAuth_1.adminProtect, adviceController.getSingleAdviceCategory);
+router.put('/updateAdviceCategory/:categoryId', adminAuth_1.adminProtect, upload.none(), adviceController.updateAdviceCategory);
+//admin imageSigned
+router.post("/getSignedUrlsAdmin", adviceController.getPresignedUrl);
 //Article
-router.post('/createArticle', adminAuthMiddleware_1.protect, multer_1.multerUploadUserImg.single("image"), adviceController.createArticle);
-router.get('/getArticles', adminAuthMiddleware_1.protect, adviceController.getArticles);
-router.put('/blockArticle/:articleId', adminAuthMiddleware_1.protect, adviceController.blockArticle);
-router.get('/getSingleArticle/:articleId', adminAuthMiddleware_1.protect, adviceController.getSingleArticle);
-router.put('/updateArticle/:articleId', adminAuthMiddleware_1.protect, multer_1.multerUploadUserImg.single("image"), adviceController.updateArticle);
-router.delete('/deleteArtilce/:articleId', adminAuthMiddleware_1.protect, adviceController.deleteArticle);
-router.get('/fetchArtilceByCategory/:categoryId', adminAuthMiddleware_1.protect, adviceController.getArticlesByCategory);
-router.get('/userReportWithMessages', adminAuthMiddleware_1.protect, adminControllerr.getUserReports);
-router.put('/updateReportStatus/:reportId', adminAuthMiddleware_1.protect, adminControllerr.updateReportStatus);
+router.post('/createArticle', adminAuth_1.adminProtect, upload.none(), adviceController.createArticle);
+router.get('/getArticles', adminAuth_1.adminProtect, adviceController.getArticles);
+router.put('/blockArticle/:articleId', adminAuth_1.adminProtect, adviceController.blockArticle);
+router.get('/getSingleArticle/:articleId', adminAuth_1.adminProtect, adviceController.getSingleArticle);
+router.put('/updateArticle/:articleId', adminAuth_1.adminProtect, upload.none(), adviceController.updateArticle);
+router.delete('/deleteArtilce/:articleId', adminAuth_1.adminProtect, adviceController.deleteArticle);
+router.get('/fetchArtilceByCategory/:categoryId', adminAuth_1.adminProtect, adviceController.getArticlesByCategory);
+//Reports
+router.get('/userReportWithMessages', adminAuth_1.adminProtect, adminControllerr.getUserReports);
+router.put('/updateReportStatus/:reportId', adminAuth_1.adminProtect, adminControllerr.updateReportStatus);
 exports.default = router;

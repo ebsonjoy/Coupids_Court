@@ -29,25 +29,19 @@ const inversify_1 = require("inversify");
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const StatusMessage_1 = require("../../enums/StatusMessage");
 const HttpStatusCode_1 = require("../../enums/HttpStatusCode");
+const s3Service_1 = require("../../config/s3Service");
 let AdviceController = class AdviceController {
     constructor(adviceService) {
         this.adviceService = adviceService;
         //category
         this.createAdviceCategory = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
-            const { name, description } = req.body;
-            const file = req.file;
-            if (!file) {
-                res.status(400).json({ error: "Image is required" });
-                return;
-            }
-            const imageUrl = file.location;
+            const { name, description, image } = req.body;
             try {
                 const categoryData = {
                     name,
                     description,
-                    image: imageUrl,
+                    image,
                 };
-                console.log(categoryData);
                 const newCategory = yield this.adviceService.createCategory(categoryData);
                 res.status(HttpStatusCode_1.HttpStatusCode.CREATED).json(newCategory);
             }
@@ -64,11 +58,26 @@ let AdviceController = class AdviceController {
                 }
             }
         }));
+        this.getPresignedUrl = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+            const { fileTypes } = req.body;
+            if (!fileTypes || !Array.isArray(fileTypes)) {
+                res.status(HttpStatusCode_1.HttpStatusCode.BAD_REQUEST)
+                    .json({ message: "File types are required" });
+                return;
+            }
+            try {
+                const signedUrls = yield s3Service_1.s3Service.generateSignedUrls(fileTypes);
+                res.json({ signedUrls });
+            }
+            catch (error) {
+                console.error('Error generating signed URLs:', error);
+                res.status(HttpStatusCode_1.HttpStatusCode.INTERNAL_SERVER_ERROR)
+                    .json({ message: StatusMessage_1.StatusMessage.INTERNAL_SERVER_ERROR });
+            }
+        }));
         this.getAdviceCategory = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
-            console.log('hlll');
             try {
                 const categories = yield this.adviceService.getCategories();
-                console.log(categories);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json(categories);
             }
             catch (error) {
@@ -110,9 +119,9 @@ let AdviceController = class AdviceController {
         this.updateAdviceCategory = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             const { categoryId } = req.params;
             const updateData = req.body;
-            const file = req.file;
+            const imageUrl = req.body.image;
             try {
-                const updatedCategory = yield this.adviceService.updateAdiveCategory(categoryId, updateData, file);
+                const updatedCategory = yield this.adviceService.updateAdiveCategory(categoryId, updateData, imageUrl);
                 if (!updatedCategory) {
                     res.status(HttpStatusCode_1.HttpStatusCode.NOT_FOUND).json({ message: StatusMessage_1.StatusMessage.NOT_FOUND });
                     return;
@@ -133,19 +142,13 @@ let AdviceController = class AdviceController {
         }));
         //Article
         this.createArticle = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
-            const { title, content, categoryId } = req.body;
-            const file = req.file;
-            if (!file) {
-                res.status(400).json({ error: "Image is required" });
-                return;
-            }
-            const imageUrl = file.location;
+            const { title, content, categoryId, image } = req.body;
             try {
                 const articleData = {
                     title,
                     content,
                     categoryId,
-                    image: imageUrl
+                    image,
                 };
                 const newArticle = yield this.adviceService.createArticle(articleData);
                 res.status(HttpStatusCode_1.HttpStatusCode.CREATED).json(newArticle);
@@ -187,9 +190,9 @@ let AdviceController = class AdviceController {
         this.updateArticle = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
             const { articleId } = req.params;
             const updateData = req.body;
-            const file = req.file;
+            const imageUrl = req.body.image;
             try {
-                const updatedArticle = yield this.adviceService.updateArticle(articleId, updateData, file);
+                const updatedArticle = yield this.adviceService.updateArticle(articleId, updateData, imageUrl);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json(updatedArticle);
             }
             catch (error) {
