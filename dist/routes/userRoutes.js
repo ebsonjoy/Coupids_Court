@@ -9,6 +9,7 @@ const userAuth_1 = require("../middleware/userAuth");
 const userValidation_1 = __importDefault(require("../validation/userValidation"));
 const multer_1 = __importDefault(require("multer"));
 const checkSubscription_1 = require("../middleware/checkSubscription ");
+const roleMiddleware_1 = require("../middleware/roleMiddleware");
 const upload = (0, multer_1.default)();
 const router = express_1.default.Router();
 const userController = container_1.container.get('UserController');
@@ -25,35 +26,35 @@ router.post("/userInfoSignUp", userController.createUserInfo);
 router.post("/getSignedUrls", userController.getPresignedUrl);
 // Google Login
 router.post('/auth/google', userController.googleAuth);
-router.get("/getHomeUsersProfiles/:userId", userAuth_1.userProtect, userController.getHomeUsersProfiles);
-router.get("/getUserProfile/:userId", userAuth_1.userProtect, userController.getUserProfile);
-router.get('/getUserDetails/:userId', userAuth_1.userProtect, userController.getUserDetails);
-router.put("/updatePersonalInfo/:userId", userAuth_1.userProtect, upload.none(), userController.updatedPersonalInfo);
-router.put("/updateDatingInfo/:userId", userAuth_1.userProtect, upload.none(), userController.updateUserDatingInfo);
+router.get("/getHomeUsersProfiles/:userId", userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.getHomeUsersProfiles);
+router.get("/getUserProfile/:userId", userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.getUserProfile);
+router.get('/getUserDetails/:userId', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.getUserDetails);
+router.put("/updatePersonalInfo/:userId", userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), upload.none(), userController.updatedPersonalInfo);
+router.put("/updateDatingInfo/:userId", userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), upload.none(), userController.updateUserDatingInfo);
 // Plan
-router.get('/getUserPlans/:userId', userAuth_1.userProtect, userController.getUserPlan);
-router.put('/updateUserSubscription/:userId', userAuth_1.userProtect, userController.updateUserSubscription);
-router.get('/getUserPlanDetails/:userId', userAuth_1.userProtect, userController.userSubscriptionDetails);
-router.put('/cancelUserPlan/:userId', userAuth_1.userProtect, userController.cancelSubscriptionPlan);
+router.get('/getUserPlans/:userId', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.getUserPlan);
+router.put('/updateUserSubscription/:userId', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.updateUserSubscription);
+router.get('/getUserPlanDetails/:userId', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.userSubscriptionDetails);
+router.put('/cancelUserPlan/:userId', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.cancelSubscriptionPlan);
 //LIKE
-router.post('/handleHomeLikes', userAuth_1.userProtect, checkSubscription_1.checkSubscription, userController.handleHomeLikes);
-router.get("/sentLikes/:userId", userAuth_1.userProtect, userController.getSentLikesProfiles);
-router.get("/receivedLikes/:userId", userAuth_1.userProtect, userController.getReceivedLikesProfiles);
-router.get('/getReceivedLikesCount/:userId', userAuth_1.userProtect, userController.getReceivedLikesCount);
+router.post('/handleHomeLikes', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), checkSubscription_1.checkSubscription, userController.handleHomeLikes);
+router.get("/sentLikes/:userId", userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.getSentLikesProfiles);
+router.get("/receivedLikes/:userId", userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.getReceivedLikesProfiles);
+router.get('/getReceivedLikesCount/:userId', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.getReceivedLikesCount);
 //MATCH
-router.get('/getMathProfiles/:userId', userAuth_1.userProtect, userController.getMathProfiles);
+router.get('/getMathProfiles/:userId', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.getMathProfiles);
 //ADVICE
-router.get('/getAdviceCategory', userAuth_1.userProtect, userController.getCategories);
-router.get('/getArticleByCategoryId/:categoryId', userAuth_1.userProtect, userController.getArticleByCategoryId);
-router.get('/getArticleById/:articleId', userAuth_1.userProtect, userController.getArticleById);
+router.get('/getAdviceCategory', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.getCategories);
+router.get('/getArticleByCategoryId/:categoryId', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.getArticleByCategoryId);
+router.get('/getArticleById/:articleId', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.getArticleById);
 //NOTIFICATION
-router.post('/createNotification', userAuth_1.userProtect, userController.createNotification);
-router.get('/getNotifications/:userId', userAuth_1.userProtect, userController.getNotification);
-router.delete('/clearNotifications/:userId', userAuth_1.userProtect, userController.clearNotifications);
+router.post('/createNotification', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.createNotification);
+router.get('/getNotifications/:userId', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.getNotification);
+router.delete('/clearNotifications/:userId', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.clearNotifications);
 // BlOCK&UNBLOCK
-router.put('/userBlocked', userAuth_1.userProtect, userController.userBlocked);
-router.put('/userUnblocked', userAuth_1.userProtect, userController.userUnBlocked);
-router.get('/userBlockedList/:userId', userAuth_1.userProtect, userController.fetchBlockedUserList);
+router.put('/userBlocked', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.userBlocked);
+router.put('/userUnblocked', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.userUnBlocked);
+router.get('/userBlockedList/:userId', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.fetchBlockedUserList);
 //REPORT
-router.post('/createReport', userAuth_1.userProtect, userController.createReport);
+router.post('/createReport', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.createReport);
 exports.default = router;

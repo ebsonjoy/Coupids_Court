@@ -39,8 +39,8 @@ let AdminController = class AdminController {
             try {
                 const admin = yield this.adminService.authenticateAdmin(email, password);
                 if (admin) {
-                    const adminAccessToken = adminTokenService_1.default.generateAdminAccessToken(admin._id.toString());
-                    const adminRefreshToken = adminTokenService_1.default.generateAdminRefreshToken(admin._id.toString());
+                    const adminAccessToken = adminTokenService_1.default.generateAdminAccessToken(admin._id.toString(), admin.role);
+                    const adminRefreshToken = adminTokenService_1.default.generateAdminRefreshToken(admin._id.toString(), admin.role);
                     adminTokenService_1.default.setAdminTokenCookies(res, adminAccessToken, adminRefreshToken);
                     res.status(HttpStatusCode_1.HttpStatusCode.OK).json({
                         _id: admin._id,

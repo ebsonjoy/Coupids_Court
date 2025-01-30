@@ -5,11 +5,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 class AdminTokenService {
-    static generateAdminAccessToken(adminId) {
-        return jsonwebtoken_1.default.sign({ adminId, adminTokenType: 'access' }, process.env.ACCESS_TOKEN_SECRET_ADMIN, { expiresIn: '15m' });
+    static generateAdminAccessToken(adminId, role) {
+        return jsonwebtoken_1.default.sign({ adminId, role, adminTokenType: 'access' }, process.env.ACCESS_TOKEN_SECRET_ADMIN, { expiresIn: '15m' });
     }
-    static generateAdminRefreshToken(adminId) {
-        return jsonwebtoken_1.default.sign({ adminId, adminTokenType: 'refresh' }, process.env.REFRESH_TOKEN_SECRET_ADMIN, { expiresIn: '7d' });
+    static generateAdminRefreshToken(adminId, role) {
+        return jsonwebtoken_1.default.sign({ adminId, role, adminTokenType: 'refresh' }, process.env.REFRESH_TOKEN_SECRET_ADMIN, { expiresIn: '7d' });
     }
     static setAdminTokenCookies(res, adminAccessToken, adminRefreshToken) {
         res.cookie('adminAccessToken', adminAccessToken, {

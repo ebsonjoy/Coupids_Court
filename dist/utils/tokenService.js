@@ -5,11 +5,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 class TokenService {
-    static generateAccessToken(userId) {
-        return jsonwebtoken_1.default.sign({ userId, tokenType: 'access' }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
+    static generateAccessToken(userId, role) {
+        return jsonwebtoken_1.default.sign({ userId, role, tokenType: 'access' }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
     }
-    static generateRefreshToken(userId) {
-        return jsonwebtoken_1.default.sign({ userId, tokenType: 'refresh' }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
+    static generateRefreshToken(userId, role) {
+        return jsonwebtoken_1.default.sign({ userId, role, tokenType: 'refresh' }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
     }
     static setTokenCookies(res, accessToken, refreshToken) {
         res.cookie('accessToken', accessToken, {

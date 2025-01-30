@@ -23,6 +23,8 @@ const adminProtect = (0, express_async_handler_1.default)((req, res, next) => __
         const decodedAccess = adminTokenService_1.default.verifyAdminAccessToken(adminAccessToken);
         if (decodedAccess) {
             req.admin = yield AdminModel_1.default.findById(decodedAccess.adminId).select('-password');
+            if (req.admin)
+                req.admin.role = decodedAccess.role;
             return next();
         }
     }
@@ -31,9 +33,11 @@ const adminProtect = (0, express_async_handler_1.default)((req, res, next) => __
         if (decodedRefresh) {
             const admin = yield AdminModel_1.default.findById(decodedRefresh.adminId);
             if (admin) {
-                const newAdminAccessToken = adminTokenService_1.default.generateAdminAccessToken(admin._id.toString());
+                const newAdminAccessToken = adminTokenService_1.default.generateAdminAccessToken(admin._id.toString(), admin.role);
                 adminTokenService_1.default.setAdminTokenCookies(res, newAdminAccessToken, adminRefreshToken);
                 req.admin = admin;
+                if (req.admin)
+                    req.admin.role = decodedRefresh.role;
                 return next();
             }
         }

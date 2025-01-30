@@ -23,6 +23,8 @@ const userProtect = (0, express_async_handler_1.default)((req, res, next) => __a
         const decodedAccess = tokenService_1.default.verifyAccessToken(accessToken);
         if (decodedAccess) {
             req.user = yield User_1.default.findById(decodedAccess.userId).select('-password');
+            if (req.user)
+                req.user.role = decodedAccess.role;
             return next();
         }
     }
@@ -31,9 +33,11 @@ const userProtect = (0, express_async_handler_1.default)((req, res, next) => __a
         if (decodedRefresh) {
             const user = yield User_1.default.findById(decodedRefresh.userId);
             if (user) {
-                const newAccessToken = tokenService_1.default.generateAccessToken(user._id.toString());
+                const newAccessToken = tokenService_1.default.generateAccessToken(user._id.toString(), user.role);
                 tokenService_1.default.setTokenCookies(res, newAccessToken, refreshToken);
                 req.user = user;
+                if (req.user)
+                    req.user.role = decodedRefresh.role;
                 return next();
             }
         }

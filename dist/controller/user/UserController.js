@@ -47,8 +47,8 @@ let UserController = class UserController {
                     res.status(HttpStatusCode_1.HttpStatusCode.FORBIDDEN).json({ message: StatusMessage_1.StatusMessage.ACCOUNT_BLOCKED });
                     return;
                 }
-                const accessToken = tokenService_1.default.generateAccessToken(user._id.toString());
-                const refreshToken = tokenService_1.default.generateRefreshToken(user._id.toString());
+                const accessToken = tokenService_1.default.generateAccessToken(user._id.toString(), user.role);
+                const refreshToken = tokenService_1.default.generateRefreshToken(user._id.toString(), user.role);
                 tokenService_1.default.setTokenCookies(res, accessToken, refreshToken);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({
                     _id: user._id,
@@ -95,7 +95,7 @@ let UserController = class UserController {
                 res.status(401).json({ message: 'User not found' });
                 return;
             }
-            const newAccessToken = tokenService_1.default.generateAccessToken(user._id.toString());
+            const newAccessToken = tokenService_1.default.generateAccessToken(user._id.toString(), user.role);
             tokenService_1.default.setTokenCookies(res, newAccessToken, refreshToken);
             res.status(200).json({ message: 'Token refreshed successfully' });
         }));
@@ -133,8 +133,8 @@ let UserController = class UserController {
                     });
                     return;
                 }
-                const accessToken = tokenService_1.default.generateAccessToken(user._id.toString());
-                const refreshToken = tokenService_1.default.generateRefreshToken(user._id.toString());
+                const accessToken = tokenService_1.default.generateAccessToken(user._id.toString(), user.role);
+                const refreshToken = tokenService_1.default.generateRefreshToken(user._id.toString(), user.role);
                 tokenService_1.default.setTokenCookies(res, accessToken, refreshToken);
                 res.status(HttpStatusCode_1.HttpStatusCode.OK).json({
                     _id: user._id,
