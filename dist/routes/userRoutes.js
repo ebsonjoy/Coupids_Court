@@ -10,6 +10,7 @@ const userValidation_1 = __importDefault(require("../validation/userValidation")
 const multer_1 = __importDefault(require("multer"));
 const checkSubscription_1 = require("../middleware/checkSubscription ");
 const roleMiddleware_1 = require("../middleware/roleMiddleware");
+const checkFeatureAccess_1 = require("../middleware/checkFeatureAccess");
 const upload = (0, multer_1.default)();
 const router = express_1.default.Router();
 const userController = container_1.container.get('UserController');
@@ -38,15 +39,15 @@ router.get('/getUserPlanDetails/:userId', userAuth_1.userProtect, (0, roleMiddle
 router.put('/cancelUserPlan/:userId', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.cancelSubscriptionPlan);
 //LIKE
 router.post('/handleHomeLikes', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), checkSubscription_1.checkSubscription, userController.handleHomeLikes);
-router.get("/sentLikes/:userId", userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.getSentLikesProfiles);
-router.get("/receivedLikes/:userId", userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.getReceivedLikesProfiles);
+router.get("/sentLikes/:userId", userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), (0, checkFeatureAccess_1.checkFeatureAccess)('VIEW_SENT_LIKES'), userController.getSentLikesProfiles);
+router.get("/receivedLikes/:userId", userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), (0, checkFeatureAccess_1.checkFeatureAccess)('VIEW_SENT_LIKES'), userController.getReceivedLikesProfiles);
 router.get('/getReceivedLikesCount/:userId', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.getReceivedLikesCount);
 //MATCH
 router.get('/getMathProfiles/:userId', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.getMathProfiles);
 //ADVICE
-router.get('/getAdviceCategory', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.getCategories);
-router.get('/getArticleByCategoryId/:categoryId', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.getArticleByCategoryId);
-router.get('/getArticleById/:articleId', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.getArticleById);
+router.get('/getAdviceCategory', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), (0, checkFeatureAccess_1.checkFeatureAccess)('READ_DATING_ADVICE'), userController.getCategories);
+router.get('/getArticleByCategoryId/:categoryId', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), (0, checkFeatureAccess_1.checkFeatureAccess)('READ_DATING_ADVICE'), userController.getArticleByCategoryId);
+router.get('/getArticleById/:articleId', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), (0, checkFeatureAccess_1.checkFeatureAccess)('READ_DATING_ADVICE'), userController.getArticleById);
 //NOTIFICATION
 router.post('/createNotification', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.createNotification);
 router.get('/getNotifications/:userId', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.getNotification);
@@ -57,4 +58,5 @@ router.put('/userUnblocked', userAuth_1.userProtect, (0, roleMiddleware_1.checkR
 router.get('/userBlockedList/:userId', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.fetchBlockedUserList);
 //REPORT
 router.post('/createReport', userAuth_1.userProtect, (0, roleMiddleware_1.checkRole)(['user']), userController.createReport);
+router.get('/getUserPlanFeatures', userAuth_1.userProtect, userController.getUserPlanFeatures);
 exports.default = router;

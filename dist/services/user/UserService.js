@@ -59,6 +59,19 @@ let UserService = class UserService {
             let dataToUpdate = null;
             try {
                 const currentPlan = yield this.userRepository.findPlanById(planId);
+                if (!currentPlan) {
+                    throw new Error(`Plan not found for ID: ${planId}`);
+                }
+                if (!Array.isArray(currentPlan.features)) {
+                    throw new Error("Plan features are invalid or missing");
+                }
+                const featureCode = [];
+                for (let i = 0; i < currentPlan.features.length; i++) {
+                    const feature = yield this.userRepository.fetchUserPlanFeatureById(currentPlan.features[i]);
+                    if (feature && feature.code) {
+                        featureCode.push(feature.code);
+                    }
+                }
                 if (currentPlan) {
                     dataToUpdate = {
                         subscription: {
@@ -67,6 +80,7 @@ let UserService = class UserService {
                             planExpiryDate: (0, calculateExpDate_1.calculateExpiryDate)(currentPlan.duration),
                             // planExpiryDate:  new Date(Date.now() + 2 * 60 * 1000),
                             planStartingDate: new Date(),
+                            features: featureCode,
                         },
                     };
                 }
@@ -296,6 +310,8 @@ let UserService = class UserService {
                 if (!user) {
                     throw new Error("User not found");
                 }
+                const PlanFeatures = yield this.userRepository.getUserPlanFeatures();
+                console.log('PlanFeaturesPlanFeatures', PlanFeatures);
                 if (!user.subscription.isPremium || !user.subscription.planId) {
                     return yield this.userRepository.getUserPlans();
                 }
@@ -303,7 +319,9 @@ let UserService = class UserService {
                 if (!currentPlan) {
                     throw new Error("Current plan not found");
                 }
-                return yield this.userRepository.getPlansAbovePrice(currentPlan.offerPrice);
+                const plans = yield this.userRepository.getPlansAbovePrice(currentPlan.offerPrice);
+                console.log('plansplans', plans);
+                return plans;
             }
             catch (error) {
                 console.log(error);
@@ -349,12 +367,30 @@ let UserService = class UserService {
     updateUserSubscription(userId, subscriptionData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                if (!subscriptionData.planId) {
+                    throw new Error("Plan ID is required");
+                }
+                const currentPlan = yield this.userRepository.findPlanById(subscriptionData.planId.toString());
+                if (!currentPlan) {
+                    throw new Error(`Plan not found for ID: ${subscriptionData.planId}`);
+                }
+                if (!Array.isArray(currentPlan.features)) {
+                    throw new Error("Plan features are invalid or missing");
+                }
+                const featureCode = [];
+                for (let i = 0; i < currentPlan.features.length; i++) {
+                    const feature = yield this.userRepository.fetchUserPlanFeatureById(currentPlan.features[i]);
+                    if (feature && feature.code) {
+                        featureCode.push(feature.code);
+                    }
+                }
                 const dataToUpdate = {
                     subscription: {
                         isPremium: subscriptionData.isPremium,
                         planId: subscriptionData.planId ? new mongoose_1.default.Types.ObjectId(subscriptionData.planId) : null,
                         planExpiryDate: subscriptionData.planExpiryDate,
                         planStartingDate: subscriptionData.planStartingDate,
+                        features: featureCode,
                     },
                 };
                 const user = yield this.userRepository.findById(userId);
@@ -588,6 +624,21 @@ let UserService = class UserService {
     createReport(reportData) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield this.userRepository.createReport(reportData);
+        });
+    }
+    getUserPlanFeatures() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const PlanFeatures = yield this.userRepository.getUserPlanFeatures();
+                if (!PlanFeatures) {
+                    return null;
+                }
+                return PlanFeatures;
+            }
+            catch (error) {
+                console.error("Error fetching plan features:", error);
+                throw error;
+            }
         });
     }
 };

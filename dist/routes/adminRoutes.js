@@ -50,4 +50,6 @@ router.get('/fetchArtilceByCategory/:categoryId', adminAuth_1.adminProtect, (0, 
 //Reports
 router.get('/userReportWithMessages', adminAuth_1.adminProtect, (0, roleMiddleware_1.checkRole)(['admin']), adminControllerr.getUserReports);
 router.put('/updateReportStatus/:reportId', adminAuth_1.adminProtect, (0, roleMiddleware_1.checkRole)(['admin']), adminControllerr.updateReportStatus);
+router.post('/createPlanFeature', adminAuth_1.adminProtect, adminControllerr.createPlanFeature);
+router.get('/fetchPlanFeatures', adminAuth_1.adminProtect, adminControllerr.getPlanFeatures);
 exports.default = router;

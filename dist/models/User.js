@@ -83,6 +83,10 @@ const userSchema = new mongoose_1.default.Schema({
             type: Date,
             default: null,
         },
+        features: {
+            type: [String],
+            default: []
+        }
     },
     status: {
         type: Boolean,

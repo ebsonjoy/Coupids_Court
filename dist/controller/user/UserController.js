@@ -603,6 +603,13 @@ let UserController = class UserController {
                 res.status(500).json({ message: 'Internal server error', error: error.message });
             }
         }));
+        this.getUserPlanFeatures = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+            const PlanFeatures = yield this.userService.getUserPlanFeatures();
+            if (!PlanFeatures) {
+                res.status(400).json({ message: "No features" });
+            }
+            res.status(200).json(PlanFeatures);
+        }));
     }
 };
 exports.UserController = UserController;

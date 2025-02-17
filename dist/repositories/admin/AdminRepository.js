@@ -29,6 +29,7 @@ const PaymentModel_1 = __importDefault(require("../../models/PaymentModel"));
 const MatchModel_1 = __importDefault(require("../../models/MatchModel"));
 const MessageModel_1 = __importDefault(require("../../models/MessageModel"));
 const reportModel_1 = __importDefault(require("../../models/reportModel"));
+const PlanFeatures_1 = __importDefault(require("../../models/PlanFeatures"));
 const BaseRepository_1 = require("../base/BaseRepository");
 let AdminRepository = class AdminRepository extends BaseRepository_1.BaseRepository {
     constructor() {
@@ -39,6 +40,7 @@ let AdminRepository = class AdminRepository extends BaseRepository_1.BaseReposit
         this.matchModel = MatchModel_1.default;
         this.MessageModel = MessageModel_1.default;
         this.reportModel = reportModel_1.default;
+        this.PlanFeaturesModel = PlanFeatures_1.default;
     }
     authenticate(email) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -296,6 +298,29 @@ let AdminRepository = class AdminRepository extends BaseRepository_1.BaseReposit
     updateReportStatus(reportId, status) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield reportModel_1.default.findByIdAndUpdate(reportId, { status, updatedAt: new Date() }, { new: true });
+        });
+    }
+    createPlanFeature(feature) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const newFeature = new this.PlanFeaturesModel(feature);
+                return yield newFeature.save();
+            }
+            catch (error) {
+                console.error("Error creating feature:", error);
+                return null;
+            }
+        });
+    }
+    getPlanFeatures() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.PlanFeaturesModel.find();
+            }
+            catch (error) {
+                console.error("Error fetch feature:", error);
+                return null;
+            }
         });
     }
 };

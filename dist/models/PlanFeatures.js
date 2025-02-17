@@ -24,15 +24,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const PlanSchema = new mongoose_1.default.Schema({
-    planName: { type: String, required: true },
-    duration: { type: String, required: true },
-    offerPercentage: { type: Number, required: true },
-    actualPrice: { type: Number, required: true },
-    offerPrice: { type: Number, required: true },
-    offerName: { type: String, required: true },
-    status: { type: Boolean, default: true },
-    features: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'PlanFeatures', required: true }],
-}, { timestamps: true });
-const Plan = mongoose_1.default.model("Plan", PlanSchema);
-exports.default = Plan;
+const PlanFeatureSchema = new mongoose_1.Schema({
+    code: { type: String, required: true, unique: true, index: true },
+    name: { type: String, required: true },
+    description: { type: String },
+});
+const PlanFeatures = mongoose_1.default.model("PlanFeatures", PlanFeatureSchema);
+exports.default = PlanFeatures;

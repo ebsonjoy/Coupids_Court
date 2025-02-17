@@ -31,6 +31,7 @@ const PlanModel_1 = __importDefault(require("../../models/PlanModel"));
 const PaymentModel_1 = __importDefault(require("../../models/PaymentModel"));
 const Notifications_1 = __importDefault(require("../../models/Notifications"));
 const reportModel_1 = __importDefault(require("../../models/reportModel"));
+const PlanFeatures_1 = __importDefault(require("../../models/PlanFeatures"));
 const Article_1 = __importDefault(require("../../models/Article"));
 const AdviceCategory_1 = __importDefault(require("../../models/AdviceCategory"));
 const BaseRepository_1 = require("../base/BaseRepository");
@@ -47,6 +48,7 @@ let UserRepository = class UserRepository extends BaseRepository_1.BaseRepositor
         this.ArticleModel = Article_1.default;
         this.NotificationModel = Notifications_1.default;
         this.reportModel = reportModel_1.default;
+        this.PlanFeaturesModel = PlanFeatures_1.default;
     }
     findByEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -368,6 +370,28 @@ let UserRepository = class UserRepository extends BaseRepository_1.BaseRepositor
         return __awaiter(this, void 0, void 0, function* () {
             const report = new this.reportModel(reportData);
             return yield report.save();
+        });
+    }
+    getUserPlanFeatures() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.PlanFeaturesModel.find();
+            }
+            catch (error) {
+                console.error("Error fetch feature:", error);
+                return null;
+            }
+        });
+    }
+    fetchUserPlanFeatureById(featureId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.PlanFeaturesModel.findById(featureId);
+            }
+            catch (error) {
+                console.error('Error fetch feature', error);
+                return null;
+            }
         });
     }
 };

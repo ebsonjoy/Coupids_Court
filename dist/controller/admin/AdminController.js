@@ -200,6 +200,27 @@ let AdminController = class AdminController {
                 return;
             }
         }));
+        this.createPlanFeature = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+            const { feature } = req.body;
+            if (!feature || !feature.code || !feature.name) {
+                res.status(400).json({ message: "Feature code and name are required" });
+                return;
+            }
+            const newFeature = yield this.adminService.createPlanFeature(feature);
+            if (!newFeature) {
+                res.status(400).json({ message: "Invalid feature" });
+                return;
+            }
+            res.status(201).json({ message: "New Plan Feature is created", data: newFeature });
+        }));
+        this.getPlanFeatures = (0, express_async_handler_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+            const PlanFeatures = yield this.adminService.getPlanFeatures();
+            console.log('PlanFeatures', PlanFeatures);
+            if (!PlanFeatures) {
+                res.status(400).json({ message: "No features" });
+            }
+            res.status(200).json(PlanFeatures);
+        }));
     }
 };
 exports.AdminController = AdminController;

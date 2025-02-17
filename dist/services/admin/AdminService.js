@@ -20,9 +20,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminService = void 0;
 const inversify_1 = require("inversify");
+const mongoose_1 = __importDefault(require("mongoose"));
 let AdminService = class AdminService {
     constructor(adminRepository) {
         this.adminRepository = adminRepository;
@@ -137,6 +141,35 @@ let AdminService = class AdminService {
     updateReportStatus(reportId, status) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield this.adminRepository.updateReportStatus(reportId, status);
+        });
+    }
+    createPlanFeature(feature) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.adminRepository.createPlanFeature(feature);
+            }
+            catch (error) {
+                if (error instanceof mongoose_1.default.Error.ValidationError) {
+                    console.error("Validation Error:", error);
+                    return null;
+                }
+                throw error;
+            }
+        });
+    }
+    getPlanFeatures() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const PlanFeatures = yield this.adminRepository.getPlanFeatures();
+                if (!PlanFeatures) {
+                    return null;
+                }
+                return PlanFeatures;
+            }
+            catch (error) {
+                console.error("Error fetching plan features:", error);
+                throw error;
+            }
         });
     }
 };
