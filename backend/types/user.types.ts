@@ -5,7 +5,7 @@ export interface IUser extends Document {
     name: string;
     email: string;
     password: string;
-    role:'user';
+    role:'user'
     resetPassword: {
         token: string | null;
         expDate: Date | null;
@@ -20,6 +20,7 @@ export interface IUser extends Document {
         planId: mongoose.Types.ObjectId | null;
         planExpiryDate: Date | null;
         planStartingDate: Date | null;
+        features?: string[];
     };
     status: boolean;
     matches: number;
