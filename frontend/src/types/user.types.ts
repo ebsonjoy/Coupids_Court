@@ -13,6 +13,7 @@ export interface IRegisterResponse {
   email: string;
   mobileNumber: string;
   dateOfBirth: string;
+  role:string
   otp: string;
 }
 

@@ -298,6 +298,7 @@ let UserController = class UserController {
                     _id: updatedPersonalInfo._id,
                     name: updatedPersonalInfo.name,
                     email: updatedPersonalInfo.email,
+                    role: updatedPersonalInfo.role,
                 });
             }
             catch (error) {
