@@ -78,6 +78,17 @@ let AdminRepository = class AdminRepository extends BaseRepository_1.BaseReposit
             }
         });
     }
+    getAdminById(adminId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.adminModel.findById(adminId);
+            }
+            catch (error) {
+                console.error("Error fetching admin:", error);
+                throw new Error("Error fetching admin");
+            }
+        });
+    }
     updateUserStatus(userId, newStatus) {
         return __awaiter(this, void 0, void 0, function* () {
             try {

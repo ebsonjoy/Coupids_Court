@@ -181,6 +181,13 @@ export const adminApiSlice = apiSlice.injectEndpoints({
         method: "POST",
       }),
     }),
+
+    adminRefreshToken: builder.mutation<void, void>({
+      query: () => ({
+        url: `${ADMIN_URL}/admin-refresh-token`,
+        method: "POST",
+      }),
+    }),
     getAllUsers : builder.query<UsersData[], void>({
       query: () => ({
         url: `${ADMIN_URL}/getAllUsers`,
@@ -393,5 +400,6 @@ export const {
   useUpdateReportStatusMutation,
 
   useFetchPlanFeaturesQuery,
+  useAdminRefreshTokenMutation,
 
 } = adminApiSlice;

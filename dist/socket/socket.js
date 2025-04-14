@@ -16,12 +16,13 @@ exports.getReceiverSocketId = exports.initializeSocket = exports.io = void 0;
 const socket_io_1 = require("socket.io");
 const Notifications_1 = __importDefault(require("../models/Notifications"));
 const userSocketMap = {};
-const arr = [];
+const pendingGameRequests = {};
 let playingArray = [];
+let twoTruthsGames = [];
 const initializeSocket = (server) => {
     exports.io = new socket_io_1.Server(server, {
         cors: {
-            origin: ['https://www.coupidscourt.site'],
+            origin: ["http://localhost:3001"],
             methods: ["GET", "POST"],
         },
     });
@@ -52,12 +53,15 @@ const initializeSocket = (server) => {
                 });
             }
         });
+        // Handle user blocking
         socket.on("userBlocked", ({ blockedUserId, blockedByUserId }) => {
+            console.log(blockedByUserId);
             const blockedUserSocketId = userSocketMap[blockedUserId];
             if (blockedUserSocketId) {
-                exports.io.to(blockedUserSocketId).emit("userWasBlocked", { blockedByUserId });
+                exports.io.to(blockedUserSocketId).emit("userWasBlocked", { blockedUserId });
             }
         });
+        // Handle user unblocking
         socket.on("userUnblocked", ({ unblockedUserId, unblockedByUserId }) => {
             const unblockedUserSocketId = userSocketMap[unblockedUserId];
             if (unblockedUserSocketId) {
@@ -142,36 +146,147 @@ const initializeSocket = (server) => {
                 exports.io.to(receiverSocketId).emit("call-ended");
             }
         });
-        // Tic-Tac-Toe functionality
-        socket.on("find", (e) => {
-            console.log('uuuuuuuuuuu', e.userId);
-            if (e.name) {
-                arr.push(e.name);
-                if (arr.length >= 2) {
+        // Tic-Tac-Toe
+        socket.on("findByIds", (request) => {
+            console.log("Game request received:", request);
+            if (!userSocketMap[request.opponentId]) {
+                socket.emit("matchError", { message: "Opponent is not online" });
+                return;
+            }
+            const pendingRequest = pendingGameRequests[request.playerId];
+            if (pendingRequest && pendingRequest.playerId === request.opponentId) {
+                console.log("Match found between", request.playerId, "and", request.opponentId);
+                if (request.gameType === "twoTruths" || pendingRequest.gameType === "twoTruths") {
+                    const newGame = {
+                        player1: {
+                            id: pendingRequest.playerId,
+                            name: pendingRequest.playerName,
+                            statements: [],
+                            lieIndex: null
+                        },
+                        player2: {
+                            id: request.playerId,
+                            name: request.playerName,
+                            statements: [],
+                            lieIndex: null
+                        },
+                        currentTurn: pendingRequest.playerId,
+                        gameState: 'waiting',
+                        round: 1,
+                        scores: {
+                            [pendingRequest.playerId]: 0,
+                            [request.playerId]: 0
+                        }
+                    };
+                    twoTruthsGames.push(newGame);
+                    delete pendingGameRequests[request.playerId];
+                    exports.io.emit("twoTruthsGameMatched", { allGames: twoTruthsGames });
+                }
+                else {
+                    // Default to Tic-Tac-Toe
+                    // Create player objects
                     const p1obj = {
-                        p1name: arr[0],
+                        p1id: pendingRequest.playerId,
+                        p1name: pendingRequest.playerName,
                         p1value: "X",
                         p1move: [],
                     };
                     const p2obj = {
-                        p2name: arr[1],
+                        p2id: request.playerId,
+                        p2name: request.playerName,
                         p2value: "O",
                         p2move: [],
                     };
-                    const obj = {
+                    const gameObj = {
                         p1: p1obj,
                         p2: p2obj,
                         sum: 0,
                         board: Array(9).fill(""),
                     };
-                    playingArray.push(obj);
-                    arr.splice(0, 2);
-                    exports.io.emit("find", { allPlayers: playingArray });
+                    playingArray.push(gameObj);
+                    delete pendingGameRequests[request.playerId];
+                    exports.io.emit("gameMatched", { allPlayers: playingArray });
+                }
+            }
+            else {
+                pendingGameRequests[request.opponentId] = request;
+                console.log("Game request stored for", request.opponentId);
+                const opponentSocketId = userSocketMap[request.opponentId];
+                if (opponentSocketId) {
+                    exports.io.to(opponentSocketId).emit("gameRequest", {
+                        requesterId: request.playerId,
+                        requesterName: request.playerName,
+                        gameType: request.gameType
+                    });
                 }
             }
         });
+        // Two Truths & A Lie game handlers
+        socket.on("submitStatements", ({ playerId, statements, lieIndex }) => {
+            const game = twoTruthsGames.find(game => game.player1.id === playerId || game.player2.id === playerId);
+            if (game) {
+                if (game.player1.id === playerId) {
+                    game.player1.statements = statements;
+                    game.player1.lieIndex = lieIndex;
+                }
+                else {
+                    game.player2.statements = statements;
+                    game.player2.lieIndex = lieIndex;
+                }
+                if (game.player1.statements.length > 0 && game.player2.statements.length > 0) {
+                    game.gameState = 'statements_submitted';
+                    game.currentTurn = game.player2.id;
+                    game.gameState = 'guessing';
+                }
+                exports.io.emit("twoTruthsGameUpdated", { allGames: twoTruthsGames });
+            }
+        });
+        socket.on("makeGuess", ({ playerId, guessIndex }) => {
+            const game = twoTruthsGames.find(game => game.player1.id === playerId || game.player2.id === playerId);
+            if (game && game.gameState === 'guessing') {
+                let isCorrect = false;
+                let lieIndex = -1;
+                if (game.currentTurn === game.player1.id) {
+                    isCorrect = guessIndex === game.player2.lieIndex;
+                    lieIndex = game.player2.lieIndex;
+                    if (isCorrect) {
+                        game.scores[game.player1.id]++;
+                    }
+                    if (game.round === 1) {
+                        game.round = 2;
+                        game.gameState = 'waiting';
+                        game.player1.statements = [];
+                        game.player2.statements = [];
+                        game.player1.lieIndex = null;
+                        game.player2.lieIndex = null;
+                    }
+                    else {
+                        game.gameState = 'completed';
+                    }
+                }
+                else {
+                    isCorrect = guessIndex === game.player1.lieIndex;
+                    lieIndex = game.player1.lieIndex;
+                    if (isCorrect) {
+                        game.scores[game.player2.id]++;
+                    }
+                    game.currentTurn = game.player1.id;
+                }
+                exports.io.emit("guessResult", {
+                    gameId: twoTruthsGames.indexOf(game),
+                    playerId,
+                    isCorrect,
+                    lieIndex
+                });
+                exports.io.emit("twoTruthsGameUpdated", { allGames: twoTruthsGames });
+            }
+        });
+        socket.on("resetTwoTruthsGame", ({ playerId }) => {
+            twoTruthsGames = twoTruthsGames.filter(game => game.player1.id !== playerId && game.player2.id !== playerId);
+            exports.io.emit("twoTruthsGameUpdated", { allGames: twoTruthsGames });
+        });
         socket.on("playing", (e) => {
-            const objToCheck = playingArray.find((obj) => obj.p1.p1name === e.name || obj.p2.p2name === e.name);
+            const objToCheck = playingArray.find((obj) => obj.p1.p1id === e.playerId || obj.p2.p2id === e.playerId);
             if (objToCheck) {
                 const index = parseInt(e.id.replace("btn", "")) - 1;
                 if (objToCheck.board[index] === "") {
@@ -179,14 +294,9 @@ const initializeSocket = (server) => {
                     objToCheck.sum++;
                 }
                 const winConditions = [
-                    [0, 1, 2],
-                    [3, 4, 5],
-                    [6, 7, 8],
-                    [0, 3, 6],
-                    [1, 4, 7],
-                    [2, 5, 8],
-                    [0, 4, 8],
-                    [2, 4, 6],
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                    [0, 4, 8], [2, 4, 6],
                 ];
                 let winner = null;
                 for (const [a, b, c] of winConditions) {
@@ -198,8 +308,9 @@ const initializeSocket = (server) => {
                     }
                 }
                 if (winner) {
+                    const winnerName = winner === "X" ? objToCheck.p1.p1name : objToCheck.p2.p2name;
                     exports.io.emit("gameOver", {
-                        winner: winner === "X" ? objToCheck.p1.p1name : objToCheck.p2.p2name,
+                        winner: winnerName,
                         reason: "win",
                     });
                     playingArray = playingArray.filter((obj) => obj !== objToCheck);
@@ -217,15 +328,13 @@ const initializeSocket = (server) => {
             }
         });
         socket.on("resetGame", (e) => {
-            playingArray = playingArray.filter((obj) => obj.p1.p1name !== e.name && obj.p2.p2name !== e.name);
+            playingArray = playingArray.filter((obj) => obj.p1.p1id !== e.playerId && obj.p2.p2id !== e.playerId);
             exports.io.emit("playing", { allPlayers: playingArray });
-        });
-        socket.on("gameOver", (e) => {
-            playingArray = playingArray.filter((obj) => obj.p1.p1name !== e.name);
         });
         socket.on("disconnect", () => {
             console.log("User disconnected", socket.id);
             if (userId) {
+                delete pendingGameRequests[userId];
                 delete userSocketMap[userId];
             }
             exports.io.emit("getOnlineUsers", Object.keys(userSocketMap));

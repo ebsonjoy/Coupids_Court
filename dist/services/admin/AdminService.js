@@ -57,6 +57,17 @@ let AdminService = class AdminService {
             }
         });
     }
+    getAdminById(adminId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.adminRepository.getAdminById(adminId);
+            }
+            catch (error) {
+                console.log(error);
+                throw new Error("Failed to fetch admin");
+            }
+        });
+    }
     getAllUsers() {
         return __awaiter(this, void 0, void 0, function* () {
             try {

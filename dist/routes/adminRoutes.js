@@ -18,6 +18,7 @@ const adviceController = container_1.container.get('AdviceController');
 router.post('/logoutAdmin', adminControllerr.logout);
 router.post('/create', adminControllerr.register);
 router.post('/login', adminControllerr.login);
+router.post("/admin-refresh-token", adminControllerr.adminRefreshToken);
 router.get('/getAllUsers', adminAuth_1.adminProtect, (0, roleMiddleware_1.checkRole)(['admin']), adminControllerr.getAllUsers);
 router.put('/updateUserStatus/:userId', adminAuth_1.adminProtect, (0, roleMiddleware_1.checkRole)(['admin']), adminControllerr.updateUserStatus);
 router.get('/paymentDetails', adminAuth_1.adminProtect, (0, roleMiddleware_1.checkRole)(['admin']), adminControllerr.fetchPayments);
